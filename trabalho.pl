@@ -15,6 +15,8 @@ rua(antonioR,sVictor).
 rua(joaoR,sVictor).
 rua(mariaR,sVicente).
 rua(tiagoR,sVicente).
+
+
 %---V1 dos mapas
 %---ruasAdj(rua,rua).
 ruasAdj(antonioR,joaoR).
@@ -39,4 +41,8 @@ adjcentes(sVicente,sVicente, [
     ruasAdj(tiagoR,mariaR)
 ]).
 
-
+%---V3 dos mapas -- Apenas ligas ruas, depois para ver as freg -> rua(Nome,freg).
+ruasAdj(antonioR,joaoR).
+ruasAdj(joaoR,mariaR).
+ruasAdj(tiagoR,mariaR).
+ruasAdj(antonioR,tiagoR).
