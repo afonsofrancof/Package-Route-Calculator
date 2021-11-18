@@ -15,33 +15,34 @@ rua(antonioR,sVictor).
 rua(joaoR,sVictor).
 rua(mariaR,sVicente).
 rua(tiagoR,sVicente).
-
+%---entrega(Nome da ecomenda, meio, estafeta).
+entrega (televisao, bicicleta, antonio).
 
 %---V1 dos mapas
 %---ruasAdj(rua,rua).
-ruasAdj(antonioR,joaoR).
-ruasAdj(joaoR,mariaR).
-ruasAdj(tiagoR,mariaR).
-ruasAdj(antonioR,tiagoR).
+%ruasAdj(antonioR,joaoR). 
+%ruasAdj(joaoR,mariaR).
+%ruasAdj(tiagoR,mariaR).
+%ruasAdj(antonioR,tiagoR).
 %---fregAdj(freg,freg,[ruasAdj]).
-fregAdj(sVictor,sVicente, [
-    ruasAdj(joaoR,mariaR),
-    ruasAdj(antonioR,tiagoR),
-]).
+%fregAdj(sVictor,sVicente, [
+%    ruasAdj(joaoR,mariaR),
+%    ruasAdj(antonioR,tiagoR),
+%]).
 
 %---V2 dos mapas
-adjcentes(sVictor,sVictor,[
-    ruasAdj(antonioR,joaoR)
-]).
-adjcentes(sVictor,sVicente, [
-    ruasAdj(joaoR,mariaR),
-    ruasAdj(antonioR,tiagoR)
-]).
-adjcentes(sVicente,sVicente, [
-    ruasAdj(tiagoR,mariaR)
-]).
+%adjcentes(sVictor,sVictor,[
+%    ruasAdj(antonioR,joaoR)
+%]).
+%adjcentes(sVictor,sVicente, [
+%    ruasAdj(joaoR,mariaR),
+%    ruasAdj(antonioR,tiagoR)
+%]).
+%adjcentes(sVicente,sVicente, [
+%    ruasAdj(tiagoR,mariaR)
+%]).
 
-%---V3 dos mapas -- Apenas ligas ruas, depois para ver as freg -> rua(Nome,freg).
+%---V3 dos mapas -- Apenas ligas ruas, depois para ver as freg -> rua(Nome,freg)
 ruasAdj(antonioR,joaoR).
 ruasAdj(joaoR,mariaR).
 ruasAdj(tiagoR,mariaR).
