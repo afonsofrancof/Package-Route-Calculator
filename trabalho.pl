@@ -1,3 +1,5 @@
+%----sede(localizaão da sede).
+sede(joaoR).
 %----meio de transporte(meio,peso max,velocidade).
 transporte(bicicleta,5,10).
 transporte(moto,20,35).
@@ -6,17 +8,14 @@ transporte(carro,100,25).
 ecologico(bicicleta,3).
 ecologico(moto,2).
 ecologico(carro,1).
-%---estafeta(nome,classificação,localizacao,lista de entregas,entregas realizadas a tempo,entregas realizadas).
-estafeta(antonio,0,joao,[],0,0).
-%---ecomenda(nome,rua,peso,preco,tempo max de entrega em h (0 e imediato)).
-ecomenda(televisao,antonioR,10,780,24).
-%---ruas de um ciadade(nome da rua,fregesia).
-rua(antonioR,sVictor).
-rua(joaoR,sVictor).
-rua(mariaR,sVicente).
-rua(tiagoR,sVicente).
-%---entrega(Nome da ecomenda, meio, estafeta).
-entrega (televisao, bicicleta, antonio).
+%---estafeta(nome e id).
+estafeta(antonio0).
+%---ecomenda(nome e id,rua,peso,preco,tempo max de entrega em h (0 e imediato)).
+ecomenda(televisao0,antonioR,10,780,24).
+%---entrega realizada(Nome da ecomenda, estafeta, meio, dia/mes/ano).
+entrega(televisao0, antonio0, bicicleta, 12/03/2001).
+
+%
 
 %---V1 dos mapas
 %---ruasAdj(rua,rua).
@@ -29,7 +28,6 @@ entrega (televisao, bicicleta, antonio).
 %    ruasAdj(joaoR,mariaR),
 %    ruasAdj(antonioR,tiagoR),
 %]).
-
 %---V2 dos mapas
 %adjcentes(sVictor,sVictor,[
 %    ruasAdj(antonioR,joaoR)
@@ -42,7 +40,13 @@ entrega (televisao, bicicleta, antonio).
 %    ruasAdj(tiagoR,mariaR)
 %]).
 
-%---V3 dos mapas -- Apenas ligas ruas, depois para ver as freg -> rua(Nome,freg)
+%---V3 dos mapas
+%---ruas de um ciadade(nome da rua,fregesia).
+rua(antonioR,sVictor).
+rua(joaoR,sVictor).
+rua(mariaR,sVicente).
+rua(tiagoR,sVicente).
+%---ruasAdj(rua,rua) ,depois para ver as freg -> rua(Nome,freg)
 ruasAdj(antonioR,joaoR).
 ruasAdj(joaoR,mariaR).
 ruasAdj(tiagoR,mariaR).
