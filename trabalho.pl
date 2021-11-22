@@ -14,20 +14,24 @@ estafeta(joao/0).
 %---ecomenda(nome/id,rua,peso,preco,tempo max de entrega em h (0 e imediato)).
 ecomenda(televisao/0,antonioR,10,780,24).
 ecomenda(pc/0,antonioR,10,780,24).
-%---entrega realizada(Nome/ecomenda, estafeta/id, meio, dia/mes/ano).
-entrega(televisao/0, antonio/0, bicicleta, 12/03/2001).
-entrega(pc/0, joao/0, bicicleta, 12/04/2002).
+%---entrega realizada(cliente/id,Nome/ecomenda, estafeta/id, meio, dia/mes/ano).
+entrega(pedro/0,televisao/0, antonio/0, bicicleta, 12/03/2001).
+entrega(pedro/0,pc/0, joao/0, bicicleta, 12/04/2002).
 %---reivew(cliente/id,ecomenda/id,classificação,comentario).
 review(pedro/0,televisao/0,4,"bueno").
 
 %---Exercicios
+
+entregasACliente(Cliente,Ecomendas,LE) :- findall(Estafeta, (entrega(Cliente,Ecomenda,Estafeta,_,_),
+                                          member(Ecomenda,Ecomendas)), LE).
+
 entregaTotais(Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecomenda,
-                                                    (entrega(Ecomenda,_,_,Dia/Mes/Ano),
+                                                    (entrega(_,Ecomenda,_,_,Dia/Mes/Ano),
                                                     entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF)),
                                                     LE), length(LE,Total).
 
 entregaPorMeio(Meio,Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecomenda,
-                                                    (entrega(Ecomenda,_,Meio,Dia/Mes/Ano),
+                                                    (entrega(_,Ecomenda,_,Meio,Dia/Mes/Ano),
                                                     entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF)),
                                                     LE), length(LE,Total).
 
