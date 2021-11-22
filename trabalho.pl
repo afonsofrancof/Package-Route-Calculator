@@ -22,28 +22,49 @@ review(pedro/0,televisao/0,4,"bueno").
 
 %---Exercicios
 
+
+%2
 entregasACliente(Cliente,Ecomendas,LE) :- findall(Estafeta, (entrega(Cliente,Ecomenda,Estafeta,_,_),
                                           member(Ecomenda,Ecomendas)), LE).
 
-entregaTotais(Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecomenda,
-                                                    (entrega(_,Ecomenda,_,_,Dia/Mes/Ano),
-                                                    entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF)),
-                                                    LE), length(LE,Total).
-
+%7
 entregaPorMeio(Meio,Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecomenda,
                                                     (entrega(_,Ecomenda,_,Meio,Dia/Mes/Ano),
                                                     entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF)),
                                                     LE), length(LE,Total).
 
+%8
+entregaTotais(Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecomenda,
+                                                      (entrega(_,Ecomenda,_,_,Dia/Mes/Ano),
+                                                      entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF)),
+                                                      LE), length(LE,Total).
+
+%9
+entregaNoTempo(Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF):- findall(Ecomenda,
+                                                      (entrega(_,Ecomenda,_,_,Dia/Mes/Ano),
+                                                      entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF)),
+                                                      LE),length(LE,Total).
+
+naoentregeNoTempo(Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecomenda,
+                                                          (entrega(_,Ecomenda,_,_,Dia/Mes/Ano),
+                                                          not(entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF))),
+                                                          LE),length(LE,Total).
+%10
+pesoTotalEstDia(Total,Dia/Mes/Ano):- findall(Peso,
+                                     (entrega(_,Ecomenda,_,_,Dia/Mes/Ano),
+                                     ecomenda(Ecomenda,_,Peso,_,_)),
+                                     LP),sumLista(LP,Total).
 
 %---Func Aux
 entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- emDias(Dia/Mes/Ano,K), 
                                                         emDias(DiaI/MesI/AnoI,KIncial), 
                                                         emDias(DiaF/MesF/AnoF,KFinal), 
                                                         K =< KFinal, K >= KIncial.
-emDias(Dia/Mes/Ano,Dias) :- A is Ano * 365, M is 30 * Mes, Dias is Dia + A + M. 
-%
+emDias(Dia/Mes/Ano,Dias) :- A is Ano * 365, M is 30 * Mes, Dias is Dia + A + M.
 
+sumLista([],0).
+sumLista([X|Y],K):- sumLista(Y,K1), K is X + K1.
+%
 %---V1 dos mapas
 %---ruasAdj(rua,rua).
 %ruasAdj(antonioR,joaoR). 
