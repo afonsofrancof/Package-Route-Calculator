@@ -13,19 +13,44 @@ estafeta(antonio/0).
 estafeta(joao/0).
 %---ecomenda(nome/id,rua,peso,preco,tempo max de entrega em h (0 e imediato)).
 ecomenda(televisao/0,antonioR,10,780,24).
+ecomenda(televisao/1,joaoR,10,500,12).
+ecomenda(televisao/2,mariaR,10,460,16).
 ecomenda(pc/0,antonioR,10,780,24).
 %---entrega realizada(cliente/id,Nome/ecomenda, estafeta/id, meio, dia/mes/ano).
 entrega(pedro/0,televisao/0, antonio/0, bicicleta, 12/03/2001).
+entrega(manuel/0,televisao/1, antonio/0, bicicleta, 12/03/2001).
+entrega(vitor/0,televisao/2, antonio/0, bicicleta, 12/03/2001).
 entrega(pedro/0,pc/0, joao/0, bicicleta, 12/04/2002).
-%---reivew(cliente/id,ecomenda/id,classificação,comentario).
+%---review(cliente/id,ecomenda/id,classificação,comentario).
 review(pedro/0,televisao/0,4,"bueno").
+review(manuel/0,televisao/1,1,"meh").
 
 %---Exercicios
 
+%1
+estafetaEcologico(EstafetaReturn) :- findall(Estafeta/Id/Valor ,(entrega(_,_,Estafeta/Id,Meio,_),ecologico(Meio,Valor)),Est).
+%Falta somar os gajos da lista ou pensar noutro metodo.                         
+%Listas deste tipo [antonio/0/3,antonio/0/2,joao/0/1] , em que cada item corresponde a 1 valor de ecologia, por isso cada estafeta em 1 
+%item na lista por entrega que fez. Basicamente, até agora, o que a estafetaEcologico faz e transformar os veiculos em valores ecologicos.
 
 %2
 entregasACliente(Cliente,Ecomendas,LE) :- findall(Estafeta, (entrega(Cliente,Ecomenda,Estafeta,_,_),
                                           member(Ecomenda,Ecomendas)), LE).
+
+%3
+clientesServidosPorEstafeta(Clientes,Estafeta/Id) :- findall(Cliente, (entrega(Cliente,_,Estafeta/Id,_,_)),Clientes).
+
+%4
+calcularValorDia(Valor,Dia/Mes/Ano):- findall(Preco , (ecomenda(Nome/Id,_,_,Preco,_),entrega(_,Nome/Id,_,_,Dia/Mes/Ano)),LP), sumLista(LP,Valor).
+
+%5
+zonaMaiorVolumeEntregas(Zona) :- findall(Rua ,(ecomenda(Nome/Id,Rua,_,_,_),entrega(_,Nome/Id,_,_,_)),LR),maisRepetido(LR,Zona,_).
+
+%6
+classificacaoEstafeta(Valor,Estafeta/IdE) :- findall(Classificacao, (entrega(_,Nome/Id,Estafeta/IdE,_,_),review(_,Nome/Id,Classificacao,_)),LC),
+                                            sumLista(LC,LP),
+                                            length(LC,LengthClass),
+                                            Valor is LP / LengthClass.
 
 %7
 entregaPorMeio(Meio,Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecomenda,
