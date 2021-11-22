@@ -42,6 +42,16 @@ entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- emDias(Dia/Mes/Ano,K),
                                                         emDias(DiaF/MesF/AnoF,KFinal), 
                                                         K =< KFinal, K >= KIncial.
 emDias(Dia/Mes/Ano,Dias) :- A is Ano * 365, M is 30 * Mes, Dias is Dia + A + M. 
+
+maisRepetido([Tipo],Tipo,1).
+maisRepetido([X|Tipos],X,QuantosRepetidos) :- maisRepetido(Tipos,_,Q), 
+                                              quantosRepetidos([X|Tipos],X,QuantosRepetidos), 
+                                              Q < QuantosRepetidos,!.
+maisRepetido([_|Tipos],Tipo,Quantos) :- maisRepetido(Tipos,Tipo,Quantos).
+
+quantosRepetidos([],_,0).
+quantosRepetidos([Tipo|Tipos],Tipo,Quantos) :- !, quantosRepetidos(Tipos,Tipo,Quantos1), Quantos is Quantos1 + 1.
+quantosRepetidos([_|Tipos],Tipo,Quantos) :- quantosRepetidos(Tipos,Tipo,Quantos).
 %
 
 %---V1 dos mapas
