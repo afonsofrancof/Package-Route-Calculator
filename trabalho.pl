@@ -24,11 +24,29 @@ entrega(pedro/0,pc/0, joao/0, bicicleta, 12/04/2002).
 %---review(cliente/id,ecomenda/id,classificação,comentario).
 review(pedro/0,televisao/0,4,"bueno").
 review(manuel/0,televisao/1,1,"meh").
+%---precoExtra(peso,meio de transporte, tempo de transporte,total)
+precoExtra(Peso,Transporte,Tempo,Total) :- precoPeso(Peso,PrecoPeso), precoTransporte(Transporte,PrecoTransporte), precoTempo(Tempo,PrecoTempo),
+                                           Total is PrecoPeso + PrecoTempo + PrecoTransporte.
 
+precoPeso(Peso,5) :- Peso < 5, !.
+precoPeso(Peso,10) :- Peso < 20, !.
+precoPeso(Peso,20) :- Peso < 50, !.
+precoPeso(Peso,30) :- Peso < 100, !.
+
+precoTempo(0,30) :- !.
+precoTempo(Tempo,15) :- Tempo < 2 , !.
+precoTempo(Tempo,10) :- Tempo < 6 , !.
+precoTempo(_,5)  :- !. 
+
+precoTransporte(bicicleta,5).
+precoTransporte(moto,15). 
+precoTransporte(carro,20).
 %---Exercicios
 
 %1
-estafetaEcologico(EstafetaReturn) :- findall(Estafeta/Id/Valor ,(entrega(_,_,Estafeta/Id,Meio,_),ecologico(Meio,Valor)),Est).
+estafetaEcologico(EstafetaFinal,Quantos) :- findall(Estafeta/Id ,(entrega(_,_,Estafeta/Id,bicicleta,_)),Est),length(Est,Size), 
+                                    Size > 0,!, maisRepetido(Est,EstafetaFinal,Quantos).
+estafetaEcologico(ninguem,0).
 %Falta somar os gajos da lista ou pensar noutro metodo.                         
 %Listas deste tipo [antonio/0/3,antonio/0/2,joao/0/1] , em que cada item corresponde a 1 valor de ecologia, por isso cada estafeta em 1 
 %item na lista por entrega que fez. Basicamente, até agora, o que a estafetaEcologico faz e transformar os veiculos em valores ecologicos.
@@ -41,10 +59,16 @@ entregasACliente(Cliente,Ecomendas,LE) :- findall(Estafeta, (entrega(Cliente,Eco
 clientesServidosPorEstafeta(Clientes,Estafeta/Id) :- findall(Cliente, (entrega(Cliente,_,Estafeta/Id,_,_)),Clientes).
 
 %4
-calcularValorDia(Valor,Dia/Mes/Ano):- findall(Preco , (ecomenda(Nome/Id,_,_,Preco,_),entrega(_,Nome/Id,_,_,Dia/Mes/Ano)),LP), sumLista(LP,Valor).
+calcularValorDia(Valor,Dia/Mes/Ano):- findall(Preco , (ecomenda(Nome/Id,_,Peso,_,Tempo),
+                                                      entrega(_,Nome/Id,_,Transporte,Dia/Mes/Ano),precoExtra(Peso,Transporte,Tempo,Preco)),
+                                                      LP), sumLista(LP,Valor).
 
 %5
-zonaMaiorVolumeEntregas(Zona) :- findall(Rua ,(ecomenda(Nome/Id,Rua,_,_,_),entrega(_,Nome/Id,_,_,_)),LR),maisRepetido(LR,Zona,_).
+ruaMaiorVolumeEntregas(Zona) :- findall(Rua ,(ecomenda(Nome/Id,Rua,_,_,_),entrega(_,Nome/Id,_,_,_)),LR),maisRepetido(LR,Zona,_).
+
+fregMaiorVolumeEntregas(Zona) :- findall(Freg ,
+                                        (ecomenda(Nome/Id,Rua,_,_,_),entrega(_,Nome/Id,_,_,_),rua(Rua,Freg)),LF),
+                                        maisRepetido(LF,Zona,_).
 
 %6
 classificacaoEstafeta(Valor,Estafeta/IdE) :- findall(Classificacao, (entrega(_,Nome/Id,Estafeta/IdE,_,_),review(_,Nome/Id,Classificacao,_)),LC),
@@ -59,10 +83,13 @@ entregaPorMeio(Meio,Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecomenda,
                                                     LE), length(LE,Total).
 
 %8
-entregaTotais(Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecomenda,
-                                                      (entrega(_,Ecomenda,_,_,Dia/Mes/Ano),
-                                                      entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF)),
-                                                      LE), length(LE,Total).
+entregasTodosEstafetas(Entregas,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall( (Estafeta,Total),
+                                                                  (estafeta(Estafeta), entregaPorEstafeta(Estafeta,Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF)),Entregas).
+
+entregaPorEstafeta(Estafeta,Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecomenda,
+                                                           (entrega(_,Ecomenda,Estafeta,_,Dia/Mes/Ano),
+                                                           entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF)),
+                                                           LE), length(LE,Total).
 
 %9
 entregaNoTempo(Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF):- findall(Ecomenda,
@@ -70,7 +97,7 @@ entregaNoTempo(Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF):- findall(Ecomenda,
                                                       entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF)),
                                                       LE),length(LE,Total).
 
-naoentregeNoTempo(Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecomenda,
+naoEntregeNoTempo(Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecomenda,
                                                           (entrega(_,Ecomenda,_,_,Dia/Mes/Ano),
                                                           not(entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF))),
                                                           LE),length(LE,Total).
