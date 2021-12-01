@@ -102,10 +102,13 @@ naoEntregeNoTempo(Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecomenda,
                                                           not(entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF))),
                                                           LE),length(LE,Total).
 %10
-pesoTotalEstDia(Total,Dia/Mes/Ano):- findall(Peso,
-                                     (entrega(_,Ecomenda,_,_,Dia/Mes/Ano),
-                                     ecomenda(Ecomenda,_,Peso,_,_)),
-                                     LP),sumLista(LP,Total).
+pesoTotalEstDia(Entregas,Dia/Mes/Ano):- findall((Estafeta,Total),
+                                        (estafeta(Estafeta),pesoPorEstafetaDia(Estafeta,Total,Dia/Mes/Ano)),Entregas).
+
+pesoPorEstafetaDia(Estafeta,Total,Dia/Mes/Ano) :- findall(Peso,
+                                                  (entrega(_,Ecomenda,Estafeta,_,Dia/Mes/Ano),
+                                                  ecomenda(Ecomenda,_,Peso,_,_)),
+                                                  LE), sumLista(LE,Total).
 
 %---Func Aux
 entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- emDias(Dia/Mes/Ano,K), 
