@@ -38,10 +38,10 @@ precoPeso(Peso,30) :- Peso < 100, !.
 precoTempo(0,30) :- !.
 precoTempo(Tempo,15) :- Tempo < 2 , !.
 precoTempo(Tempo,10) :- Tempo < 6 , !.
-precoTempo(_,5)  :- !. 
+precoTempo(_,5)  :- !.
 
 precoTransporte(bicicleta,5).
-precoTransporte(moto,15). 
+precoTransporte(moto,15).
 precoTransporte(carro,20).
 %---Exercicios
 
@@ -62,13 +62,13 @@ construirId0([Estafeta/Id/Value|X],L,List):- \+member(Estafeta/Id/_/_,L) -> cons
                                         construirId0(X,F,List).
 replace([_|T], 0, X, [X|T]).
 replace([H|T], I, X, [H|R]):-
-        I > -1, 
+        I > -1,
         NI is I-1,
         replace(T, NI, X, R), !.
 replace(L, _, _, L).
 
 maiorEcologiaList([],MelhorEstafeta/MelhorId/MelhorValor,MelhorEstafeta/MelhorId/MelhorValor).
-maiorEcologiaList([Estafeta/Id/Valor/_|X],MelhorEstafeta/MelhorId/MelhorValor,Y) :- Valor>MelhorValor -> 
+maiorEcologiaList([Estafeta/Id/Valor/_|X],MelhorEstafeta/MelhorId/MelhorValor,Y) :- Valor>MelhorValor ->
                                                                                                         maiorEcologiaList(X,Estafeta/Id/Valor,Y);
                                                                                                         maiorEcologiaList(X,MelhorEstafeta/MelhorId/MelhorValor,Y).
 
@@ -142,8 +142,8 @@ removerClientesRepetidos([],List,List).
 removerClientesRepetidos([Cliente|X],Empty,List):- member(Cliente,Empty) -> removerClientesRepetidos(X,Empty,List) ; removerClientesRepetidos(X,[Clienten|Empty],List).
 
 maisRepetido([Tipo],Tipo,1).
-maisRepetido([X|Tipos],X,QuantosRepetidos) :- maisRepetido(Tipos,_,Q), 
-                                              quantosRepetidos([X|Tipos],X,QuantosRepetidos), 
+maisRepetido([X|Tipos],X,QuantosRepetidos) :- maisRepetido(Tipos,_,Q),
+                                              quantosRepetidos([X|Tipos],X,QuantosRepetidos),
                                               Q < QuantosRepetidos,!.
 maisRepetido([_|Tipos],Tipo,Quantos) :- maisRepetido(Tipos,Tipo,Quantos).
 
@@ -156,7 +156,7 @@ sumLista([X|Y],K):- sumLista(Y,K1), K is X + K1.
 %
 %---V1 dos mapas
 %---ruasAdj(rua,rua).
-%ruasAdj(antonioR,joaoR). 
+%ruasAdj(antonioR,joaoR).
 %ruasAdj(joaoR,mariaR).
 %ruasAdj(tiagoR,mariaR).
 %ruasAdj(antonioR,tiagoR).
