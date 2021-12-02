@@ -16,10 +16,12 @@ ecomenda(televisao/0,antonioR,10,780,24).
 ecomenda(televisao/1,joaoR,10,500,12).
 ecomenda(televisao/2,mariaR,10,460,16).
 ecomenda(pc/0,antonioR,10,780,24).
+ecomenda(pc/1,antonioR,10,780,24).
 %---entrega realizada(cliente/id,Nome/ecomenda, estafeta/id, meio, dia/mes/ano).
 entrega(pedro/0,televisao/0, antonio/0, bicicleta, 12/03/2001).
 entrega(manuel/0,televisao/1, antonio/0, bicicleta, 12/03/2001).
-entrega(vitor/0,televisao/2, antonio/0, bicicleta, 12/03/2001).
+entrega(manuel/0,pc/1, antonio/0, bicicleta, 12/03/2001).
+entrega(vitor/0,televisao/2, antonio/0, carro, 12/03/2001).
 entrega(pedro/0,pc/0, joao/0, bicicleta, 12/04/2002).
 %---review(cliente/id,ecomenda/id,classificação,comentario).
 review(pedro/0,televisao/0,4,"bueno").
@@ -43,20 +45,40 @@ precoTransporte(moto,15).
 precoTransporte(carro,20).
 %---Exercicios
 
-%1
-estafetaEcologico(EstafetaFinal,Quantos) :- findall(Estafeta/Id ,(entrega(_,_,Estafeta/Id,bicicleta,_)),Est),length(Est,Size), 
-                                    Size > 0,!, maisRepetido(Est,EstafetaFinal,Quantos).
-estafetaEcologico(ninguem,0).
-%Falta somar os gajos da lista ou pensar noutro metodo.                         
-%Listas deste tipo [antonio/0/3,antonio/0/2,joao/0/1] , em que cada item corresponde a 1 valor de ecologia, por isso cada estafeta em 1 
-%item na lista por entrega que fez. Basicamente, até agora, o que a estafetaEcologico faz e transformar os veiculos em valores ecologicos.
+first([H|_],H).
+
+
+estafetaEcologico(MelhorEstafeta/Id) :- findall(Estafeta/Id/Meio ,(entrega(_,_,Estafeta/Id,Transporte,_),ecologico(Transporte,Meio)),Est),
+                                                        construirId0(Est,[],List),
+                                                        first(List,F),
+                                                        maiorEcologiaList(List,F,MelhorEstafeta/Id/_).
+
+
+
+construirId0([],List,List).
+construirId0([Estafeta/Id/Value|X],L,List):- \+member(Estafeta/Id/_/_,L) -> construirId0(X,[Estafeta/Id/Value/0|L],List) ; nth0(Index,L,Estafeta/Id/Valor/Times),
+                                        H is Valor*Times,A is H+Value,B is Times+1, C is A/B,
+                                        replace(L,Index,Estafeta/Id/C/B,F),
+                                        construirId0(X,F,List).
+replace([_|T], 0, X, [X|T]).
+replace([H|T], I, X, [H|R]):-
+        I > -1, 
+        NI is I-1,
+        replace(T, NI, X, R), !.
+replace(L, _, _, L).
+
+maiorEcologiaList([],MelhorEstafeta/MelhorId/MelhorValor,MelhorEstafeta/MelhorId/MelhorValor).
+maiorEcologiaList([Estafeta/Id/Valor/_|X],MelhorEstafeta/MelhorId/MelhorValor,Y) :- Valor>MelhorValor -> 
+                                                                                                        maiorEcologiaList(X,Estafeta/Id/Valor,Y);
+                                                                                                        maiorEcologiaList(X,MelhorEstafeta/MelhorId/MelhorValor,Y).
+
 
 %2
 entregasACliente(Cliente,Ecomendas,LE) :- findall(Estafeta, (entrega(Cliente,Ecomenda,Estafeta,_,_),
                                           member(Ecomenda,Ecomendas)), LE).
 
 %3
-clientesServidosPorEstafeta(Clientes,Estafeta/Id) :- findall(Cliente, (entrega(Cliente,_,Estafeta/Id,_,_)),Clientes).
+clientesServidosPorEstafeta(ClientesSemRepetidos,Estafeta/Id) :- findall(Cliente, (entrega(Cliente,_,Estafeta/Id,_,_)),Clientes),removerClientesRepetidos(Clientes,[],ClientesSemRepetidos).
 
 %4
 calcularValorDia(Valor,Dia/Mes/Ano):- findall(Preco , (ecomenda(Nome/Id,_,Peso,_,Tempo),
@@ -90,7 +112,7 @@ entregaPorEstafeta(Estafeta,Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- findall(Ecom
                                                            (entrega(_,Ecomenda,Estafeta,_,Dia/Mes/Ano),
                                                            entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF)),
                                                            LE), length(LE,Total).
-
+%para alterar , 2 listas com if  -> ;
 %9
 entregaNoTempo(Total,DiaI/MesI/AnoI,DiaF/MesF/AnoF):- findall(Ecomenda,
                                                       (entrega(_,Ecomenda,_,_,Dia/Mes/Ano),
@@ -111,11 +133,13 @@ pesoPorEstafetaDia(Estafeta,Total,Dia/Mes/Ano) :- findall(Peso,
                                                   LE), sumLista(LE,Total).
 
 %---Func Aux
-entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- emDias(Dia/Mes/Ano,K), 
-                                                        emDias(DiaI/MesI/AnoI,KIncial), 
-                                                        emDias(DiaF/MesF/AnoF,KFinal), 
-                                                        K =< KFinal, K >= KIncial.
-emDias(Dia/Mes/Ano,Dias) :- A is Ano * 365, M is 30 * Mes, Dias is Dia + A + M. 
+entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- date_time_stamp(date(Ano,Mes,Dia),X),
+                                                    date_time_stamp(date(AnoI,MesI,DiaI),Y),
+                                                    date_time_stamp(date(AnoF,MesF,DiaF),Z),
+                                                    X<Z,
+                                                    X>Y.
+removerClientesRepetidos([],List,List).
+removerClientesRepetidos([Cliente|X],Empty,List):- member(Cliente,Empty) -> removerClientesRepetidos(X,Empty,List) ; removerClientesRepetidos(X,[Clienten|Empty],List).
 
 maisRepetido([Tipo],Tipo,1).
 maisRepetido([X|Tipos],X,QuantosRepetidos) :- maisRepetido(Tipos,_,Q), 
