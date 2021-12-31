@@ -139,7 +139,7 @@ entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- date_time_stamp(date(Ano
                                                     X<Z,
                                                     X>Y.
 removerClientesRepetidos([],List,List).
-removerClientesRepetidos([Cliente|X],Empty,List):- member(Cliente,Empty) -> removerClientesRepetidos(X,Empty,List) ; removerClientesRepetidos(X,[Clienten|Empty],List).
+removerClientesRepetidos([Cliente|X],Empty,List):- member(Cliente,Empty) -> removerClientesRepetidos(X,Empty,List) ; removerClientesRepetidos(X,[Cliente|Empty],List).
 
 maisRepetido([Tipo],Tipo,1).
 maisRepetido([X|Tipos],X,QuantosRepetidos) :- maisRepetido(Tipos,_,Q),
@@ -179,12 +179,35 @@ sumLista([X|Y],K):- sumLista(Y,K1), K is X + K1.
 
 %---V3 dos mapas
 %---ruas de um ciadade(nome da rua,fregesia).
-rua(antonioR,sVictor).
-rua(joaoR,sVictor).
-rua(mariaR,sVicente).
-rua(tiagoR,sVicente).
+rua(antonioR,sVictor,1.0).
+rua(joaoR,sVictor,0.750).
+rua(mariaR,sVicente,1.1).
+rua(tiagoR,sVicente,0.8).
 %---ruasAdj(rua,rua) ,depois para ver as freg -> rua(Nome,freg)
 ruasAdj(antonioR,joaoR).
 ruasAdj(joaoR,mariaR).
 ruasAdj(tiagoR,mariaR).
 ruasAdj(antonioR,tiagoR).
+
+%---ecomenda(nome/id,rua,peso,preco,tempo max de entrega em h (0 e imediato)).
+
+recomendacao(Entrega/ID,Transporte/Distancia/CaminhoFiltrado) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
+                                                                 findall(Veiculo/Velocidade,(transporte(Veiculo,Max,Velocidade), Peso < Max),LV),
+                                                                 caminho(Destino,Caminho), %??
+                                                                 distancia(Caminho,Distancia),
+                                                                 selecionaMelhorTransporte(LV, Distancia, Tempo, Transporte).
+                                                                 retiraDistancias(Caminho,CaminhoFiltrado).
+
+caminho() %%search here
+
+distancia([Rua/Distancia|Prox], Total) :- distancia(Prox, DistProx), Total is Distancia + DistProx.
+distancia([], 0).
+
+selecionaMelhorTransporte([Veiculo/Velocidade|Prox], Distancia, Tempo, Veiculo) :- selecionaMelhorTransporte(Prox, Distancia, Transporte),
+                                                                                   ecoclogico(Veiculo,VeiculoGrau), ecoclogico(Transporte,TransporteGrau),
+                                                                                   VeiculoGrau > TransporteGrau , TempoTotal is Distancia / Velocidade, TempoTotal < Tempo, !.
+selecionaMelhorTransporte([Veiculo/Velocidade|Prox], Distancia, Transporte) :- selecionaMelhorTransporte(Prox,Distancia,Transporte).
+selecionaMelhorTransporte([Veiculo/Velocidade], Distancia, Veiculo).
+
+retiraDistancias([Rua/Caminho|Prox], [Rua|Resultado]) :- retiraDistancias(Prox,Resultado).
+retiraDistancias([],[]).
