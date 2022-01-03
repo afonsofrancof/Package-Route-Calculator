@@ -3,6 +3,10 @@
 transporte(bicicleta,5,10).
 transporte(moto,20,35).
 transporte(carro,100,25).
+
+penalidade(bicicleta,0.7).
+penalidade(moto,0.5).
+penalidade(carro,0.1).
 %---ecologico(meioTransporte, Grau > mais ecoclogico).
 ecologico(bicicleta,3).
 ecologico(moto,2).
@@ -213,9 +217,13 @@ ruasAdj(afonsoR,diogoR,1.9).
 %---ecomenda(nome/id,rua,peso,preco,tempo max de entrega em h (0 e imediato)).
 
 recomendacao(Entrega/ID,Transporte/Distancia/CaminhoFiltrado) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
-                                                                 findall(Veiculo/Velocidade,(transporte(Veiculo,Max,Velocidade), Peso < Max),LV),
-                                                                 
-                                                                 caminho(Destino,Caminho), %??
+                                                                 findall(Veiculo/VelocidadePenalizada,
+                                                                        (transporte(Veiculo,Max,Velocidade),
+                                                                        Peso < Max,
+                                                                        velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada),
+                                                                        velocidadePenalizada > 0),
+                                                                        LV),                                                       
+                                                                 bfs(antonioR,Destino,Caminho), %??
                                                                  distancia(Caminho,Distancia),
                                                                  selecionaMelhorTransporte(LV, Distancia, Tempo, Transporte).
                                                                  retiraDistancias(Caminho,CaminhoFiltrado).
@@ -324,9 +332,13 @@ distancia([Rua|Prox],Total) :-
                         Total is Distancia + DistProx.
 distancia([R],0).
 
+velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada):- transporte(Veiculo,_,Velocidade),
+                                                penalidade(Veiculo,Penalidade),Z is Penalidade*Peso,
+                                                Z < Velocidade -> VelocidadePenalizada is Velocidade-Z ; VelocidadePenalizada is 0.
+
 
 selecionaMelhorTransporte([Veiculo/Velocidade|Prox], Distancia, Tempo, Veiculo) :- selecionaMelhorTransporte(Prox, Distancia, Transporte),
-                                                                                   ecoclogico(Veiculo,VeiculoGrau), ecoclogico(Transporte,TransporteGrau),
+                                                                                   ecologico(Veiculo,VeiculoGrau), ecologico(Transporte,TransporteGrau),
                                                                                    VeiculoGrau > TransporteGrau , TempoTotal is Distancia / Velocidade, TempoTotal < Tempo, !.
 selecionaMelhorTransporte([Veiculo/Velocidade|Prox], Distancia, Transporte) :- selecionaMelhorTransporte(Prox,Distancia,Transporte).
 selecionaMelhorTransporte([Veiculo/Velocidade], Distancia, Veiculo).
