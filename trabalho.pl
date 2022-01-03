@@ -178,7 +178,7 @@ sumLista([X|Y],K):- sumLista(Y,K1), K is X + K1.
 %]).
 
 %---V3 dos mapas
-%----sede(localizaão da sede).
+%----sede(localizacão da sede).
 sede(joaoR).
 %---ruas de um ciadade(nome da rua,fregesia).
 rua(antonioR,sVictor).
@@ -215,10 +215,9 @@ recomendacao(Entrega/ID,Transporte/Distancia/CaminhoFiltrado) :- ecomenda(Entreg
 
 % depth first
 resolve_pp_c(Destino, Nodo, [Nodo|Caminho], C) :-
-	profundidadeprimeiro(Destino, Nodo, [Nodo], Caminho, C).
+	            profundidadeprimeiro(Destino, Nodo, [Nodo], Caminho, C).
 
 profundidadeprimeiro(Destino, Destino, _, [], 0).
-
 profundidadeprimeiro(Destino, Nodo, Historico, [ProxNodo|Caminho], C) :-
                 adjacente(Nodo, ProxNodo, C1),
                 not(member(ProxNodo, Historico)),
@@ -226,14 +225,13 @@ profundidadeprimeiro(Destino, Nodo, Historico, [ProxNodo|Caminho], C) :-
                 C is C1 + C2.
 
 % breath first
-bfs(Orig, Dest, Cam,C):- bfs2(Dest,[[Orig]],Cam,C).
-bfs2(Dest,[[Dest|T]|_],Cam,_):- reverse([Dest|T],Cam). 
-bfs2(Dest,[LA|Outros],Cam,C):- LA=[Act|_],
-    findall([X|LA],(Dest\==Act,adjacente(Act,X),\+member(X,LA)),Novos),
-    append(Outros,Novos,Todos),
-    bfs2(Dest,Todos,Cam,C),
-    C is C1 + C2.
-
+bfs(Orig, Dest, Cam):- bfs2(Dest,[[Orig]],Cam).
+bfs2(Dest,[[Dest|T]|_],Cam):- reverse([Dest|T],Cam). 
+bfs2(Dest,[LA|Outros],Cam):- 
+                        LA=[Act|_],
+                        findall([X/C|LA],(Dest\==Act,adjacente(Act,X,C),\+member(X/C,LA)),Novos),
+                        append(Outros,Novos,Todos),
+                        bfs2(Dest,Todos,Cam).
 
 adjacente(Nodo, ProxNodo, C) :- 
 	ruasAdj(Nodo, ProxNodo, C).
