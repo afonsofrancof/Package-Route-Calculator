@@ -189,6 +189,15 @@ rua(tiagoR,sVicente).
 rua(diogoR,gualtar).
 rua(armandoR,gualtar).
 rua(semilhaR,gualtar).
+
+estimativa(joaoR,0).
+estimativa(antonioR,1.4).
+estimativa(afonsoR,1).
+estimativa(mariaR,2.5).
+estimativa(tiagoR,1.6).
+estimativa(diogoR,2.3).
+estimativa(armandoR,3.7).
+estimativa(semilhaR,2.1).
 %---ruasAdj(rua,rua) ,depois para ver as freg -> rua(Nome,freg)
 ruasAdj(joaoR,antonioR,1.4).
 ruasAdj(joaoR,afonsoR,1).
