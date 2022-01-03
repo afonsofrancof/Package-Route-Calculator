@@ -178,7 +178,7 @@ sumLista([X|Y],K):- sumLista(Y,K1), K is X + K1.
 %]).
 
 %---V3 dos mapas
-%---ruas de um ciadade(nome da rua,fregesia).
+%---ruas de um ciadade(nome da rua,fregesia,km).
 rua(antonioR,sVictor,1.0).
 rua(joaoR,sVictor,0.750).
 rua(mariaR,sVicente,1.1).
@@ -193,6 +193,7 @@ ruasAdj(antonioR,tiagoR).
 
 recomendacao(Entrega/ID,Transporte/Distancia/CaminhoFiltrado) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
                                                                  findall(Veiculo/Velocidade,(transporte(Veiculo,Max,Velocidade), Peso < Max),LV),
+                                                                 
                                                                  caminho(Destino,Caminho), %??
                                                                  distancia(Caminho,Distancia),
                                                                  selecionaMelhorTransporte(LV, Distancia, Tempo, Transporte).
