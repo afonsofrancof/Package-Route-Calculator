@@ -221,7 +221,7 @@ recomendacao(Entrega/ID,Transporte/Distancia/CaminhoFiltrado) :- ecomenda(Entreg
                                                                         (transporte(Veiculo,Max,Velocidade),
                                                                         Peso < Max,
                                                                         velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada),
-                                                                        velocidadePenalizada > 0),
+                                                                        VelocidadePenalizada > 0),
                                                                         LV),                                                       
                                                                  bfs(antonioR,Destino,Caminho), %??
                                                                  distancia(Caminho,Distancia),
