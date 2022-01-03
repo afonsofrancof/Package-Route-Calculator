@@ -229,7 +229,7 @@ bfs(Orig, Dest, Cam):- bfs2(Dest,[[Orig]],Cam).
 bfs2(Dest,[[Dest|T]|_],Cam):- reverse([Dest|T],Cam). 
 bfs2(Dest,[LA|Outros],Cam):- 
                         LA=[Act|_],
-                        findall([X/C|LA],(Dest\==Act,adjacente(Act,X,C),\+member(X/C,LA)),Novos),
+                        findall([X|LA],(Dest\==Act,adjacente(Act,X,_),\+member(X/C,LA)),Novos),
                         append(Outros,Novos,Todos),
                         bfs2(Dest,Todos,Cam).
 
@@ -238,9 +238,13 @@ adjacente(Nodo, ProxNodo, C) :-
 adjacente(Nodo, ProxNodo, C) :- 
 	ruasAdj(ProxNodo, Nodo, C).
 
+distancia([Rua|Prox],Total) :- 
+                        nth0(0,Prox,Elem),
+                        distancia(Prox, DistProx), 
+                        adjacente(Rua, Elem, Distancia),
+                        Total is Distancia + DistProx.
+distancia([R],0).
 
-distancia([Rua/Distancia|Prox], Total) :- distancia(Prox, DistProx), Total is Distancia + DistProx.
-distancia([], 0).
 
 selecionaMelhorTransporte([Veiculo/Velocidade|Prox], Distancia, Tempo, Veiculo) :- selecionaMelhorTransporte(Prox, Distancia, Transporte),
                                                                                    ecoclogico(Veiculo,VeiculoGrau), ecoclogico(Transporte,TransporteGrau),
