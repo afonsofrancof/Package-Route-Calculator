@@ -1,5 +1,4 @@
-%----sede(localizaão da sede).
-sede(joaoR).
+
 %----meio de transporte(meio,peso max,velocidade).
 transporte(bicicleta,5,10).
 transporte(moto,20,35).
@@ -153,6 +152,7 @@ quantosRepetidos([_|Tipos],Tipo,Quantos) :- quantosRepetidos(Tipos,Tipo,Quantos)
 
 sumLista([],0).
 sumLista([X|Y],K):- sumLista(Y,K1), K is X + K1.
+
 %
 %---V1 dos mapas
 %---ruasAdj(rua,rua).
@@ -178,17 +178,29 @@ sumLista([X|Y],K):- sumLista(Y,K1), K is X + K1.
 %]).
 
 %---V3 dos mapas
+%----sede(localizaão da sede).
+sede(joaoR).
 %---ruas de um ciadade(nome da rua,fregesia).
-rua(antonioR,sVictor,1.0).
-rua(joaoR,sVictor,0.750).
-rua(mariaR,sVicente,1.1).
-rua(tiagoR,sVicente,0.8).
+rua(antonioR,sVictor).
+rua(joaoR,sVictor).
+rua(mariaR,sVitor).
+rua(afonsoR,sVicente).
+rua(tiagoR,sVicente).
+rua(diogoR,gualtar).
+rua(armandoR,gualtar).
+rua(semilhaR,gualtar).
 %---ruasAdj(rua,rua) ,depois para ver as freg -> rua(Nome,freg)
-ruasAdj(antonioR,joaoR).
-ruasAdj(joaoR,mariaR).
-ruasAdj(tiagoR,mariaR).
-ruasAdj(antonioR,tiagoR).
-
+ruasAdj(joaoR,antonioR,1.4).
+ruasAdj(joaoR,afonsoR,1).
+ruasAdj(antonioR,mariaR,2).
+ruasAdj(antonioR,afonsoR,1.2).
+ruasAdj(mariaR,tiagoR,1.7).
+ruasAdj(tiagoR,afonsoR,0.5).
+ruasAdj(tiagoR,diogoR,2.9).
+ruasAdj(tiagoR,semilhaR,1.5).
+ruasAdj(semilhaR,armandoR,1.4).
+ruasAdj(diogoR,armandoR,1.4).
+ruasAdj(afonsoR,diogoR,1.9).
 %---ecomenda(nome/id,rua,peso,preco,tempo max de entrega em h (0 e imediato)).
 
 recomendacao(Entrega/ID,Transporte/Distancia/CaminhoFiltrado) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
@@ -198,7 +210,36 @@ recomendacao(Entrega/ID,Transporte/Distancia/CaminhoFiltrado) :- ecomenda(Entreg
                                                                  selecionaMelhorTransporte(LV, Distancia, Tempo, Transporte).
                                                                  retiraDistancias(Caminho,CaminhoFiltrado).
 
-caminho() %%search here
+%caminho(Destino,Caminho):- 
+
+
+% depth first
+resolve_pp_c(Destino, Nodo, [Nodo|Caminho], C) :-
+	profundidadeprimeiro(Destino, Nodo, [Nodo], Caminho, C).
+
+profundidadeprimeiro(Destino, Destino, _, [], 0).
+
+profundidadeprimeiro(Destino, Nodo, Historico, [ProxNodo|Caminho], C) :-
+                adjacente(Nodo, ProxNodo, C1),
+                not(member(ProxNodo, Historico)),
+                profundidadeprimeiro(Destino, ProxNodo, [ProxNodo|Historico], Caminho, C2), 
+                C is C1 + C2.
+
+% breath first
+bfs(Orig, Dest, Cam,C):- bfs2(Dest,[[Orig]],Cam,C).
+bfs2(Dest,[[Dest|T]|_],Cam,_):- reverse([Dest|T],Cam). 
+bfs2(Dest,[LA|Outros],Cam,C):- LA=[Act|_],
+    findall([X|LA],(Dest\==Act,adjacente(Act,X),\+member(X,LA)),Novos),
+    append(Outros,Novos,Todos),
+    bfs2(Dest,Todos,Cam,C),
+    C is C1 + C2.
+
+
+adjacente(Nodo, ProxNodo, C) :- 
+	ruasAdj(Nodo, ProxNodo, C).
+adjacente(Nodo, ProxNodo, C) :- 
+	ruasAdj(ProxNodo, Nodo, C).
+
 
 distancia([Rua/Distancia|Prox], Total) :- distancia(Prox, DistProx), Total is Distancia + DistProx.
 distancia([], 0).
