@@ -311,6 +311,21 @@ bfs2(Dest,[LA|Outros],Cam):-
                         findall([X|LA],(Dest\==Act,adjacente(Act,X,_),\+member(X/C,LA)),Novos),
                         append(Outros,Novos,Todos),
                         bfs2(Dest,Todos,Cam).
+
+% Iterative depth first
+resolve_pp_c(Destino, Nodo, [Nodo|Caminho],MaxDepth) :-
+	            profundidadeprimeiro(Destino, Nodo, [Nodo], Caminho),
+                    member(Destino, Caminho),
+                    NextDepth is MaxDepth + 1,
+                    resolve_pp_c(Destino, Nodo, Caminho, NextDepth).
+
+profundidadeprimeiro(Destino, Destino, _ , [],0).
+profundidadeprimeiro(Destino, Nodo, Historico, [ProxNodo|Caminho],Depth) :-
+                adjacente(Nodo, ProxNodo, _),
+                not(member(ProxNodo, Historico)),
+                NewDepth is Depth-1,
+                profundidadeprimeiro(Destino, ProxNodo, [ProxNodo|Historico], Caminho,NewDepth).
+
 %
 seleciona(E, [E|Xs], Xs).
 seleciona(E, [X|Xs], [X|Ys]) :- seleciona(E, Xs, Ys).
