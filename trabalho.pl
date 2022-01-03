@@ -178,7 +178,7 @@ sumLista([X|Y],K):- sumLista(Y,K1), K is X + K1.
 %]).
 
 %---V3 dos mapas
-%----sede(localizaão da sede).
+%----sede(localizacão da sede).
 sede(joaoR).
 %---ruas de um ciadade(nome da rua,fregesia).
 rua(antonioR,sVictor).
@@ -285,10 +285,9 @@ adjacente2([Nodo|Caminho]/Custo/_, [ProxNodo,Nodo|Caminho]/NovoCusto/Est) :-
 
 % depth first
 resolve_pp_c(Destino, Nodo, [Nodo|Caminho], C) :-
-	profundidadeprimeiro(Destino, Nodo, [Nodo], Caminho, C).
+	            profundidadeprimeiro(Destino, Nodo, [Nodo], Caminho, C).
 
 profundidadeprimeiro(Destino, Destino, _, [], 0).
-
 profundidadeprimeiro(Destino, Nodo, Historico, [ProxNodo|Caminho], C) :-
                 adjacente(Nodo, ProxNodo, C1),
                 not(member(ProxNodo, Historico)),
@@ -296,23 +295,26 @@ profundidadeprimeiro(Destino, Nodo, Historico, [ProxNodo|Caminho], C) :-
                 C is C1 + C2.
 
 % breath first
-bfs(Orig, Dest, Cam,C):- bfs2(Dest,[[Orig]],Cam,C).
-bfs2(Dest,[[Dest|T]|_],Cam,_):- reverse([Dest|T],Cam). 
-bfs2(Dest,[LA|Outros],Cam,C):- LA=[Act|_],
-    findall([X|LA],(Dest\==Act,adjacente(Act,X),\+member(X,LA)),Novos),
-    append(Outros,Novos,Todos),
-    bfs2(Dest,Todos,Cam,C),
-    C is C1 + C2.
-
+bfs(Orig, Dest, Cam):- bfs2(Dest,[[Orig]],Cam).
+bfs2(Dest,[[Dest|T]|_],Cam):- reverse([Dest|T],Cam). 
+bfs2(Dest,[LA|Outros],Cam):- 
+                        LA=[Act|_],
+                        findall([X|LA],(Dest\==Act,adjacente(Act,X,_),\+member(X/C,LA)),Novos),
+                        append(Outros,Novos,Todos),
+                        bfs2(Dest,Todos,Cam).
 
 adjacente(Nodo, ProxNodo, C) :- 
 	ruasAdj(Nodo, ProxNodo, C).
 adjacente(Nodo, ProxNodo, C) :- 
 	ruasAdj(ProxNodo, Nodo, C).
 
+distancia([Rua|Prox],Total) :- 
+                        nth0(0,Prox,Elem),
+                        distancia(Prox, DistProx), 
+                        adjacente(Rua, Elem, Distancia),
+                        Total is Distancia + DistProx.
+distancia([R],0).
 
-distancia([Rua/Distancia|Prox], Total) :- distancia(Prox, DistProx), Total is Distancia + DistProx.
-distancia([], 0).
 
 selecionaMelhorTransporte([Veiculo/Velocidade|Prox], Distancia, Tempo, Veiculo) :- selecionaMelhorTransporte(Prox, Distancia, Transporte),
                                                                                    ecoclogico(Veiculo,VeiculoGrau), ecoclogico(Transporte,TransporteGrau),
