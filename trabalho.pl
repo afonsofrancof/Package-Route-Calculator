@@ -203,15 +203,6 @@ estimativa(diogoR,2.3).
 estimativa(armandoR,3.7).
 estimativa(semilhaR,2.1).
 
-estatisticaRua(antonioR,3,30).
-estatisticaRua(joaoR,1,10).
-estatisticaRua(mariaR,1,10).
-estatisticaRua(afonsoR,0,0).
-estatisticaRua(tiagoR,0,0).
-estatisticaRua(diogoR,0,0).
-estatisticaRua(armandoR,0,0).
-estatisticaRua(semilhaR,0,0).
-
 %---ruasAdj(rua,rua) ,depois para ver as freg -> rua(Nome,freg)
 ruasAdj(joaoR,antonioR,1.4).
 ruasAdj(joaoR,afonsoR,1).
@@ -244,7 +235,6 @@ recomendacao(Entrega/ID,Transporte/Distancia/CaminhoFiltrado) :- ecomenda(Entreg
 resolve_aestrela(Nodo, Caminho/Custo) :-
 	estimativa(Nodo, Estima),
 	aestrela([[Nodo]/0/Estima], Caminho/Custo/_).
-	%%inverso(InvCaminho, Caminho).
 
 aestrela(Caminhos, Caminho) :-
 	obtem_melhor(Caminhos, Caminho),
@@ -272,7 +262,6 @@ expande_aestrela(Caminho, ExpCaminhos) :-
 resolve_gulosa(Nodo, Caminho/Custo) :-
 	estimativa(Nodo, Estima),
 	agulosa([[Nodo]/0/Estima], Caminho/Custo/_).
-	%%inverso(InvCaminho, Caminho).
 
 agulosa(Caminhos, Caminho) :-
 	obtem_melhor_g(Caminhos, Caminho),
@@ -323,20 +312,20 @@ bfs2(Dest,[LA|Outros],Cam):-
                         bfs2(Dest,Todos,Cam).
 
 % Iterative depth first
-resolve_pp_c(Destino, Nodo, [Nodo|Caminho],MaxDepth) :-
-	            profundidadeprimeiro(Destino, Nodo, [Nodo], Caminho),
-                    member(Destino, Caminho),
-                    NextDepth is MaxDepth + 1,
-                    resolve_pp_c(Destino, Nodo, Caminho, NextDepth).
+resolve_iter(Destino, Nodo, [Nodo|Caminho]) :- iter_depth_call(Destino,Nodo,Caminho,0).
+iter_depth_call(Destino, Nodo, Caminho, Depth) :-
+	            iter_depth(Destino, Nodo, [Nodo], Caminho, Depth) -> !;
+                Z is Depth + 1,
+                iter_depth_call(Destino, Nodo, Caminho, Z).
 
-profundidadeprimeiro(Destino, Destino, _ , [],0).
-profundidadeprimeiro(Destino, Nodo, Historico, [ProxNodo|Caminho],Depth) :-
-                adjacente(Nodo, ProxNodo, _),
+iter_depth(Destino, Destino, _, [], 1).
+iter_depth(Destino, Nodo, Historico, [ProxNodo|Caminho], Depth) :-
+                adjacente(Nodo, ProxNodo, C1),
                 not(member(ProxNodo, Historico)),
-                NewDepth is Depth-1,
-                profundidadeprimeiro(Destino, ProxNodo, [ProxNodo|Historico], Caminho,NewDepth).
+                Z is Depth - 1,
+                Z > 0,
+                iter_depth(Destino, ProxNodo, [ProxNodo|Historico], Caminho, Z).
 
-%
 seleciona(E, [E|Xs], Xs).
 seleciona(E, [X|Xs], [X|Ys]) :- seleciona(E, Xs, Ys).
 
@@ -365,3 +354,16 @@ selecionaMelhorTransporte([Veiculo/Velocidade], Distancia, Veiculo).
 
 retiraDistancias([Rua/Caminho|Prox], [Rua|Resultado]) :- retiraDistancias(Prox,Resultado).
 retiraDistancias([],[]).
+
+%% 
+
+fregMaiorPesoEntregas(Zona) :- findall(Freg/PesoTotal,(rua(_,Freg),
+                                                     findall(Peso,(ecomenda(Nome/ID,Rua,Peso,_,_),
+                                                                  entrega(_,Nome/Id,_,_,_),
+                                                                  rua(Rua,Freg)) ,LP),
+                                                     sumLista(LP,PesoTotal)),LT),
+                               maiorPeso(LT,Zona,PseoFinal).
+
+maiorPeso([],Zona,0) :- sede(Zona).
+maiorPeso([Zona/PesoTotal|Resto],Zona,PesoTotal) :- maiorPeso(Resto,ZonaFinal,PesoFinal), PesoTotal > PesoFinal , !.
+maiorPeso([_ | Resto],Zona,PesoTotal) :- maiorPeso(Resto,Zona,PesoTotal). 
