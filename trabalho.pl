@@ -202,6 +202,16 @@ estimativa(tiagoR,1.6).
 estimativa(diogoR,2.3).
 estimativa(armandoR,3.7).
 estimativa(semilhaR,2.1).
+
+estatisticaRua(antonioR,3,30).
+estatisticaRua(joaoR,1,10).
+estatisticaRua(mariaR,1,10).
+estatisticaRua(afonsoR,0,0).
+estatisticaRua(tiagoR,0,0).
+estatisticaRua(diogoR,0,0).
+estatisticaRua(armandoR,0,0).
+estatisticaRua(semilhaR,0,0).
+
 %---ruasAdj(rua,rua) ,depois para ver as freg -> rua(Nome,freg)
 ruasAdj(joaoR,antonioR,1.4).
 ruasAdj(joaoR,afonsoR,1).
