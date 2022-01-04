@@ -36,7 +36,7 @@ teste( [R|LR] ) :-
                                 length(LR,L),
                                 L==1).
 
-+ecomenda(_,_,_,_,_)::(findall(Peso/Preco/Tempo,(ecomenda(_,_,Peso,Preco,Tempo),(Peso<0;Preco<0;Tempo<0)),LR),
++ecomenda(_,_,_,_,_)::(findall(Peso/Preco/Tempo,(ecomenda(_,_,Peso,Preco,Tempo),(Peso>100;Peso<0;Preco<0;Tempo<0)),LR),
                         length(LR,L),
                         L==0).
 
@@ -56,6 +56,8 @@ teste( [R|LR] ) :-
                                 length(LR,L),
                                 L==1).
 
+%---peso maximo que a empresa consegue entregar
+pesoMaximo(100).
 %----meio de transporte(meio,peso max,velocidade).
 transporte(bicicleta,5,10).
 transporte(moto,20,35).
