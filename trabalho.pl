@@ -3,6 +3,10 @@
 transporte(bicicleta,5,10).
 transporte(moto,20,35).
 transporte(carro,100,25).
+
+penalidade(bicicleta,0.7).
+penalidade(moto,0.5).
+penalidade(carro,0.1).
 %---ecologico(meioTransporte, Grau > mais ecoclogico).
 ecologico(bicicleta,3).
 ecologico(moto,2).
@@ -198,6 +202,16 @@ estimativa(tiagoR,1.6).
 estimativa(diogoR,2.3).
 estimativa(armandoR,3.7).
 estimativa(semilhaR,2.1).
+
+estatisticaRua(antonioR,3,30).
+estatisticaRua(joaoR,1,10).
+estatisticaRua(mariaR,1,10).
+estatisticaRua(afonsoR,0,0).
+estatisticaRua(tiagoR,0,0).
+estatisticaRua(diogoR,0,0).
+estatisticaRua(armandoR,0,0).
+estatisticaRua(semilhaR,0,0).
+
 %---ruasAdj(rua,rua) ,depois para ver as freg -> rua(Nome,freg)
 ruasAdj(joaoR,antonioR,1.4).
 ruasAdj(joaoR,afonsoR,1).
@@ -213,25 +227,29 @@ ruasAdj(afonsoR,diogoR,1.9).
 %---ecomenda(nome/id,rua,peso,preco,tempo max de entrega em h (0 e imediato)).
 
 recomendacao(Entrega/ID,Transporte/Distancia/CaminhoFiltrado) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
-                                                                 findall(Veiculo/Velocidade,(transporte(Veiculo,Max,Velocidade), Peso < Max),LV),
-                                                                 
-                                                                 caminho(Destino,Caminho), %??
+                                                                 findall(Veiculo/VelocidadePenalizada,
+                                                                        (transporte(Veiculo,Max,Velocidade),
+                                                                        Peso < Max,
+                                                                        velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada),
+                                                                        VelocidadePenalizada > 0),
+                                                                        LV),                                                       
+                                                                 bfs(antonioR,Destino,Caminho), %??
                                                                  distancia(Caminho,Distancia),
-                                                                 selecionaMelhorTransporte(LV, Distancia, Tempo, Transporte).
+                                                                 selecionaMelhorTransporte(LV, Distancia, Tempo, Transporte),
                                                                  retiraDistancias(Caminho,CaminhoFiltrado).
 
 %caminho(Destino,Caminho):- 
 
 %aestrela
 resolve_aestrela(Nodo, Caminho/Custo) :-
-	estima(Nodo, Estima),
-	aestrela([[Nodo]/0/Estima], InvCaminho/Custo/_),
-	inverso(InvCaminho, Caminho).
+	estimativa(Nodo, Estima),
+	aestrela([[Nodo]/0/Estima], Caminho/Custo/_).
+	%%inverso(InvCaminho, Caminho).
 
 aestrela(Caminhos, Caminho) :-
 	obtem_melhor(Caminhos, Caminho),
 	Caminho = [Nodo|_]/_/_,
-	goal(Nodo).
+	sede(Nodo).
 
 aestrela(Caminhos, SolucaoCaminho) :-
 	obtem_melhor(Caminhos, MelhorCaminho),
@@ -247,27 +265,19 @@ obtem_melhor([Caminho1/Custo1/Est1,_/Custo2/Est2|Caminhos], MelhorCaminho) :-
 obtem_melhor([_|Caminhos], MelhorCaminho) :- 
 	           obtem_melhor(Caminhos, MelhorCaminho).
 
-
-
 expande_aestrela(Caminho, ExpCaminhos) :-
 	findall(NovoCaminho, adjacente2(Caminho,NovoCaminho), ExpCaminhos).
-
-adjacente2([Nodo|Caminho]/Custo/_, [ProxNodo,Nodo|Caminho]/NovoCusto/Est) :-
-	move(Nodo, ProxNodo, PassoCusto),
-	\+member(ProxNodo, Caminho),
-	NovoCusto is Custo + PassoCusto,
-	estima(ProxNodo, Est).
 
 %golosa
 resolve_gulosa(Nodo, Caminho/Custo) :-
 	estimativa(Nodo, Estima),
-	agulosa([[Nodo]/0/Estima], InvCaminho/Custo/_),
-	inverso(InvCaminho, Caminho).
+	agulosa([[Nodo]/0/Estima], Caminho/Custo/_).
+	%%inverso(InvCaminho, Caminho).
 
 agulosa(Caminhos, Caminho) :-
 	obtem_melhor_g(Caminhos, Caminho),
 	Caminho = [Nodo|_]/_/_,
-	goal(Nodo).
+	sede(Nodo).
 agulosa(Caminhos, SolucaoCaminho) :-
 	obtem_melhor_g(Caminhos, MelhorCaminho),
 	seleciona(MelhorCaminho, Caminhos, OutrosCaminhos),
@@ -287,7 +297,7 @@ expande_gulosa(Caminho, ExpCaminhos) :-
 	findall(NovoCaminho, adjacente2(Caminho,NovoCaminho), ExpCaminhos).	
 
 adjacente2([Nodo|Caminho]/Custo/_, [ProxNodo,Nodo|Caminho]/NovoCusto/Est) :-
-	move(Nodo, ProxNodo, PassoCusto),
+	adjacente(Nodo, ProxNodo, PassoCusto),
 	\+member(ProxNodo, Caminho),
 	NovoCusto is Custo + PassoCusto,
 	estimativa(ProxNodo, Est).
@@ -312,6 +322,24 @@ bfs2(Dest,[LA|Outros],Cam):-
                         append(Outros,Novos,Todos),
                         bfs2(Dest,Todos,Cam).
 
+% Iterative depth first
+resolve_pp_c(Destino, Nodo, [Nodo|Caminho],MaxDepth) :-
+	            profundidadeprimeiro(Destino, Nodo, [Nodo], Caminho),
+                    member(Destino, Caminho),
+                    NextDepth is MaxDepth + 1,
+                    resolve_pp_c(Destino, Nodo, Caminho, NextDepth).
+
+profundidadeprimeiro(Destino, Destino, _ , [],0).
+profundidadeprimeiro(Destino, Nodo, Historico, [ProxNodo|Caminho],Depth) :-
+                adjacente(Nodo, ProxNodo, _),
+                not(member(ProxNodo, Historico)),
+                NewDepth is Depth-1,
+                profundidadeprimeiro(Destino, ProxNodo, [ProxNodo|Historico], Caminho,NewDepth).
+
+%
+seleciona(E, [E|Xs], Xs).
+seleciona(E, [X|Xs], [X|Ys]) :- seleciona(E, Xs, Ys).
+
 adjacente(Nodo, ProxNodo, C) :- 
 	ruasAdj(Nodo, ProxNodo, C).
 adjacente(Nodo, ProxNodo, C) :- 
@@ -324,9 +352,13 @@ distancia([Rua|Prox],Total) :-
                         Total is Distancia + DistProx.
 distancia([R],0).
 
+velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada):- transporte(Veiculo,_,Velocidade),
+                                                penalidade(Veiculo,Penalidade),Z is Penalidade*Peso,
+                                                Z < Velocidade -> VelocidadePenalizada is Velocidade-Z ; VelocidadePenalizada is 0.
+
 
 selecionaMelhorTransporte([Veiculo/Velocidade|Prox], Distancia, Tempo, Veiculo) :- selecionaMelhorTransporte(Prox, Distancia, Transporte),
-                                                                                   ecoclogico(Veiculo,VeiculoGrau), ecoclogico(Transporte,TransporteGrau),
+                                                                                   ecologico(Veiculo,VeiculoGrau), ecologico(Transporte,TransporteGrau),
                                                                                    VeiculoGrau > TransporteGrau , TempoTotal is Distancia / Velocidade, TempoTotal < Tempo, !.
 selecionaMelhorTransporte([Veiculo/Velocidade|Prox], Distancia, Transporte) :- selecionaMelhorTransporte(Prox,Distancia,Transporte).
 selecionaMelhorTransporte([Veiculo/Velocidade], Distancia, Veiculo).
