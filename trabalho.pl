@@ -312,20 +312,20 @@ bfs2(Dest,[LA|Outros],Cam):-
                         bfs2(Dest,Todos,Cam).
 
 % Iterative depth first
-resolve_pp_c(Destino, Nodo, [Nodo|Caminho],MaxDepth) :-
-	            profundidadeprimeiro(Destino, Nodo, [Nodo], Caminho),
-                    member(Destino, Caminho),
-                    NextDepth is MaxDepth + 1,
-                    resolve_pp_c(Destino, Nodo, Caminho, NextDepth).
+resolve_iter(Destino, Nodo, [Nodo|Caminho]) :- iter_depth_call(Destino,Nodo,Caminho,0).
+iter_depth_call(Destino, Nodo, Caminho, Depth) :-
+	            iter_depth(Destino, Nodo, [Nodo], Caminho, Depth) -> !;
+                Z is Depth + 1,
+                iter_depth_call(Destino, Nodo, Caminho, Z).
 
-profundidadeprimeiro(Destino, Destino, _ , [],0).
-profundidadeprimeiro(Destino, Nodo, Historico, [ProxNodo|Caminho],Depth) :-
-                adjacente(Nodo, ProxNodo, _),
+iter_depth(Destino, Destino, _, [], 1).
+iter_depth(Destino, Nodo, Historico, [ProxNodo|Caminho], Depth) :-
+                adjacente(Nodo, ProxNodo, C1),
                 not(member(ProxNodo, Historico)),
-                NewDepth is Depth-1,
-                profundidadeprimeiro(Destino, ProxNodo, [ProxNodo|Historico], Caminho,NewDepth).
+                Z is Depth - 1,
+                Z > 0,
+                iter_depth(Destino, ProxNodo, [ProxNodo|Historico], Caminho, Z).
 
-%
 seleciona(E, [E|Xs], Xs).
 seleciona(E, [X|Xs], [X|Ys]) :- seleciona(E, Xs, Ys).
 
