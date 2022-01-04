@@ -260,7 +260,7 @@ adjacente2([Nodo|Caminho]/Custo/_, [ProxNodo,Nodo|Caminho]/NovoCusto/Est) :-
 
 %golosa
 resolve_gulosa(Nodo, Caminho/Custo) :-
-	estima(Nodo, Estima),
+	estimativa(Nodo, Estima),
 	agulosa([[Nodo]/0/Estima], InvCaminho/Custo/_),
 	inverso(InvCaminho, Caminho).
 
@@ -290,7 +290,7 @@ adjacente2([Nodo|Caminho]/Custo/_, [ProxNodo,Nodo|Caminho]/NovoCusto/Est) :-
 	move(Nodo, ProxNodo, PassoCusto),
 	\+member(ProxNodo, Caminho),
 	NovoCusto is Custo + PassoCusto,
-	estima(ProxNodo, Est).
+	estimativa(ProxNodo, Est).
 
 % depth first
 resolve_pp_c(Destino, Nodo, [Nodo|Caminho], C) :-
