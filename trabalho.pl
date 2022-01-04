@@ -1,11 +1,14 @@
 :- op( 900,xfy,'::' ).
 %%ADICIONAR DYNAMIC A TODOS QUE PODEREM SER MODIFICADOS
 
+:- dynamic ecomenda/5.
+:- dynamic entrega/5.
+:- dynamic review/4.
 %
 evolucao( Termo ) :-
     findall( Invariante,+Termo::Invariante,Lista ),
     insercao( Termo ),
-    teste( Lista ).
+    teste( Lista ),!.
 
 insercao( Termo ) :-
     assert( Termo ).
@@ -27,6 +30,31 @@ teste( [R|LR] ) :-
     R,
     teste( LR ).
 
+%invariantes
+
++ecomenda(Nome/ID,_,_,_,_)::(findall(Nome/ID,(ecomenda(Nome/ID,Rua,_,_,_),rua(Rua,_)),LR),
+                                length(LR,L),
+                                L==1).
+
++ecomenda(_,_,_,_,_)::(findall(Peso/Preco/Tempo,(ecomenda(_,_,Peso,Preco,Tempo),(Peso<0;Preco<0;Tempo<0)),LR),
+                        length(LR,L),
+                        L==0).
+
++entrega(_,Nome/ID,_,_,_)::(findall(Nome/ID,(ecomenda(Nome/ID,_,_,_,_)),LR),
+                                length(LR,L),
+                                L==1).
+
++entrega(_,Nome/ID,_,_,_)::(findall(Nome/ID,(entrega(_,Nome/ID,_,_,_)),LR),
+                                length(LR,L),
+                                L==1).
+
++review(Nome1/ID1,Nome/ID,_,_)::(findall(Nome/ID,(entrega(Nome1/ID1,Nome/ID,_,_,_)),LR),
+                                length(LR,L),
+                                L==1).
+
++review(_,Nome/ID,_,_)::(findall(Nome/ID,(review(_,Nome/ID,_,_)),LR),
+                                length(LR,L),
+                                L==1).
 
 %----meio de transporte(meio,peso max,velocidade).
 transporte(bicicleta,5,10).
