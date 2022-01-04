@@ -362,8 +362,15 @@ fregMaiorPesoEntregas(Zona) :- findall(Freg/PesoTotal,(rua(_,Freg),
                                                                   entrega(_,Nome/Id,_,_,_),
                                                                   rua(Rua,Freg)) ,LP),
                                                      sumLista(LP,PesoTotal)),LT),
-                               maiorPeso(LT,Zona,PseoFinal).
+                               maiorPeso(LT,Zona,PesoFinal).
 
 maiorPeso([],Zona,0) :- sede(Zona).
 maiorPeso([Zona/PesoTotal|Resto],Zona,PesoTotal) :- maiorPeso(Resto,ZonaFinal,PesoFinal), PesoTotal > PesoFinal , !.
 maiorPeso([_ | Resto],Zona,PesoTotal) :- maiorPeso(Resto,Zona,PesoTotal). 
+
+ruaMaiorPesoEntregas(Zona) :- findall(Rua/PesoTotal,(rua(Rua,_),
+                                                     findall(Peso,(entrega(_,D/I,_,_,_),
+                                                                   ecomenda(D/I,Rua,Peso,_,_))
+                                                                   ,LP),
+                                                     sumLista(LP,PesoTotal)),LT),
+                               maiorPeso(LT,Zona,PesoFinal).
