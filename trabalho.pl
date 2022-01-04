@@ -1,9 +1,38 @@
+:- op( 900,xfy,'::' ).
+%%ADICIONAR DYNAMIC A TODOS QUE PODEREM SER MODIFICADOS
+
+%
+evolucao( Termo ) :-
+    findall( Invariante,+Termo::Invariante,Lista ),
+    insercao( Termo ),
+    teste( Lista ).
+
+insercao( Termo ) :-
+    assert( Termo ).
+insercao( Termo ) :-
+    retract( Termo ),!,fail.
+
+involucao( Termo ) :-
+    findall( Invariante,-Termo::Invariante,Lista ),
+    remocao( Termo ),
+    teste( Lista ).
+
+remocao( Termo ) :-
+    retract( Termo ).
+remocao( Termo ) :-
+    assert( Termo ),!,fail.
+
+teste( [] ).
+teste( [R|LR] ) :-
+    R,
+    teste( LR ).
+
 
 %----meio de transporte(meio,peso max,velocidade).
 transporte(bicicleta,5,10).
 transporte(moto,20,35).
 transporte(carro,100,25).
-
+%---penalidade da velocidade
 penalidade(bicicleta,0.7).
 penalidade(moto,0.5).
 penalidade(carro,0.1).
@@ -18,13 +47,13 @@ estafeta(joao/0).
 ecomenda(televisao/0,antonioR,10,780,24).
 ecomenda(televisao/1,joaoR,10,500,12).
 ecomenda(televisao/2,mariaR,10,460,16).
-ecomenda(pc/0,antonioR,10,780,24).
-ecomenda(pc/1,antonioR,10,780,24).
+ecomenda(pc/0,antonioR,2,780,24).
+ecomenda(pc/1,antonioR,8,780,24).
 %---entrega realizada(cliente/id,Nome/ecomenda, estafeta/id, meio, dia/mes/ano).
-entrega(pedro/0,televisao/0, antonio/0, bicicleta, 12/03/2001).
-entrega(manuel/0,televisao/1, antonio/0, bicicleta, 12/03/2001).
-entrega(manuel/0,pc/1, antonio/0, bicicleta, 12/03/2001).
-entrega(vitor/0,televisao/2, antonio/0, carro, 12/03/2001).
+entrega(pedro/0,televisao/0, antonio/0, mota, 12/03/2001).
+entrega(manuel/0,televisao/1, antonio/0, mota, 12/03/2001).
+entrega(manuel/0,pc/1, antonio/0, mota, 12/03/2001).
+entrega(vitor/0,televisao/2, antonio/0, mota, 12/03/2001).
 entrega(pedro/0,pc/0, joao/0, bicicleta, 12/04/2002).
 %---review(cliente/id,ecomenda/id,classificação,comentario).
 review(pedro/0,televisao/0,4,"bueno").
@@ -157,30 +186,6 @@ quantosRepetidos([_|Tipos],Tipo,Quantos) :- quantosRepetidos(Tipos,Tipo,Quantos)
 sumLista([],0).
 sumLista([X|Y],K):- sumLista(Y,K1), K is X + K1.
 
-%
-%---V1 dos mapas
-%---ruasAdj(rua,rua).
-%ruasAdj(antonioR,joaoR).
-%ruasAdj(joaoR,mariaR).
-%ruasAdj(tiagoR,mariaR).
-%ruasAdj(antonioR,tiagoR).
-%---fregAdj(freg,freg,[ruasAdj]).
-%fregAdj(sVictor,sVicente, [
-%    ruasAdj(joaoR,mariaR),
-%    ruasAdj(antonioR,tiagoR),
-%]).
-%---V2 dos mapas
-%adjcentes(sVictor,sVictor,[
-%    ruasAdj(antonioR,joaoR)
-%]).
-%adjcentes(sVictor,sVicente, [
-%    ruasAdj(joaoR,mariaR),
-%    ruasAdj(antonioR,tiagoR)
-%]).
-%adjcentes(sVicente,sVicente, [
-%    ruasAdj(tiagoR,mariaR)
-%]).
-
 %---V3 dos mapas
 %----sede(localizacão da sede).
 sede(joaoR).
@@ -217,19 +222,22 @@ ruasAdj(diogoR,armandoR,1.4).
 ruasAdj(afonsoR,diogoR,1.9).
 %---ecomenda(nome/id,rua,peso,preco,tempo max de entrega em h (0 e imediato)).
 
-recomendacao(Entrega/ID,Transporte/Distancia/CaminhoFiltrado) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
-                                                                 findall(Veiculo/VelocidadePenalizada,
-                                                                        (transporte(Veiculo,Max,Velocidade),
-                                                                        Peso < Max,
-                                                                        velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada),
-                                                                        VelocidadePenalizada > 0),
-                                                                        LV),                                                       
-                                                                 bfs(antonioR,Destino,Caminho), %??
-                                                                 distancia(Caminho,Distancia),
-                                                                 selecionaMelhorTransporte(LV, Distancia, Tempo, Transporte),
-                                                                 retiraDistancias(Caminho,CaminhoFiltrado).
+recomendacao(Entrega/ID,Algoritmo,Transporte/Distancia/Caminho) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
+                                                                           findall(Veiculo/VelocidadePenalizada,
+                                                                                    (transporte(Veiculo,Max,Velocidade),
+                                                                                    Peso < Max,
+                                                                                    velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada),
+                                                                                    VelocidadePenalizada > 0),LV),
+                                                                            caminho(Algoritmo,Destino,Distancia,Caminho),                                                       
+                                                                            selecionaMelhorTransporte(LV, Distancia, Tempo, Transporte).
+                                                                 
 
-%caminho(Destino,Caminho):- 
+
+caminho(df,Destino,Distancia,Caminho) :- sede(Rua),resolve_pp_c(Destino,Rua,Caminho,Distancia).
+caminho(bf,Destino,Distancia,Caminho) :- sede(Rua),bfs(Destino,Rua,Caminho),distancia(Caminho,Distancia).
+caminho(dfi,Destino,Distancia,Caminho) :- sede(Rua),resolve_iter(Destino,Rua,Caminho),distancia(Caminho,Distancia).
+caminho(aestrela,Destino,Distancia,Caminho) :- resolve_aestrela(Destino,Caminho/Distancia).
+caminho(gulosa,Destino,Distancia,Caminho) :- resolve_gulosa(Destino,Caminho/Distancia).
 
 %aestrela
 resolve_aestrela(Nodo, Caminho/Custo) :-
@@ -258,7 +266,8 @@ obtem_melhor([_|Caminhos], MelhorCaminho) :-
 expande_aestrela(Caminho, ExpCaminhos) :-
 	findall(NovoCaminho, adjacente2(Caminho,NovoCaminho), ExpCaminhos).
 
-%golosa
+
+%gulosa
 resolve_gulosa(Nodo, Caminho/Custo) :-
 	estimativa(Nodo, Estima),
 	agulosa([[Nodo]/0/Estima], Caminho/Custo/_).
@@ -326,6 +335,7 @@ iter_depth(Destino, Nodo, Historico, [ProxNodo|Caminho], Depth) :-
                 Z > 0,
                 iter_depth(Destino, ProxNodo, [ProxNodo|Historico], Caminho, Z).
 
+%% Auxiliares
 seleciona(E, [E|Xs], Xs).
 seleciona(E, [X|Xs], [X|Ys]) :- seleciona(E, Xs, Ys).
 
