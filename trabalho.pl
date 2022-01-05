@@ -74,7 +74,7 @@ ecologico(carro,1).
 estafeta(antonio/0).
 estafeta(joao/0).
 %---ecomenda(nome/id,rua,peso,preco,tempo max de entrega em h (0 e imediato)).
-ecomenda(televisao/0,antonioR,15,780,24).
+ecomenda(televisao/0,armandoR,15,780,24).
 ecomenda(televisao/1,joaoR,10,500,12).
 ecomenda(televisao/2,mariaR,10,460,16).
 ecomenda(pc/0,antonioR,2,780,24).
@@ -268,7 +268,7 @@ recomendacao(Entrega/ID,Algoritmo,Transporte/Distancia/Caminho) :- ecomenda(Entr
                                                              
 
 caminho(df,Destino,Distancia,Caminho) :- sede(Rua),resolve_pp_c(Destino,Rua,Caminho,Distancia).
-caminho(bf,Destino,Distancia,Caminho) :- sede(Rua),bfs(Destino,Rua,Caminho),distancia(Caminho,Distancia).
+caminho(bf,Destino,Distancia,Caminho) :- sede(Rua),bfs(Rua,Destino,Caminho),distancia(Caminho,Distancia).
 caminho(dfi,Destino,Distancia,Caminho) :- sede(Rua),resolve_iter(Destino,Rua,Caminho),distancia(Caminho,Distancia).
 caminho(aestrela,Destino,Distancia,Caminho) :- resolve_aestrela(Destino,Caminho/Distancia).
 caminho(gulosa,Destino,Distancia,Caminho) :- resolve_gulosa(Destino,Caminho/Distancia).
