@@ -446,15 +446,17 @@ recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :-
 
 recomendacaoVariasAlgoritmo(Ecomendas,Transporte/Distancia/Caminho) :- predsort(cmpEncomendaTempo,Ecomendas,Sorted),
                                                                         ruaLista(Sorted,Destinos),
-                                                                        fullyCaminho(Destinos,Distancia,Caminho).
-                                                                        %findall(P,(ecomenda(E,_,P,_,_),member(E,Ecomendas)),LP), sumLista(LP,Peso),
-                                                                        %findall(Veiculo/VelocidadePenalizada, 
-                                                                        %(transporte(Veiculo,Max,_), Peso =< Max, velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada)), LV),
-                                                                        %veiculosPossiveis(LV,Distancia,Tempo,ListaPossiveis),
-                                                                        %length(ListaPossiveis,LengthLista),
-                                                                        %(LengthLista =\= 0 -> veiculoMaisEcologico(ListaPossiveis,Transporte,_);
-                                                                        %transporteMaisRapido(LV,_,Transporte)).                                                             
+                                                                        fullyCaminho(Destinos,Distancia,Caminho),
+                                                                        findall(P,(ecomenda(E,_,P,_,_),member(E,Ecomendas)),LP), sumLista(LP,Peso),
+                                                                        findall(Veiculo/VelocidadePenalizada, 
+                                                                        (transporte(Veiculo,Max,_), Peso =< Max, velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada)), LV),
+                                                                        toPrimeiro(Sorted,DistanciaPrimeiro,TempoPrimeiro),
+                                                                        veiculosPossiveis(LV,DistanciaPrimeiro,TempoPrimeiro,ListaPossiveis),
+                                                                        length(ListaPossiveis,LengthLista),
+                                                                        (LengthLista =\= 0 -> veiculoMaisEcologico(ListaPossiveis,Transporte,_);
+                                                                        transporteMaisRapido(LV,_,Transporte)),!.                                                             
 
+toPrimeiro([H|_],Distancia,Tempo) :- ecomenda(H,Destino,_,_,Tempo),sede(Rua),resolve_iter(Destino,Rua,Caminho),distancia(Caminho,Distancia).
 
 fullyCaminho(Destinos,Distancia,Caminho) :- sede(Rua),fullyCaminhoAux(Rua,Destinos,CaminhoFully), last(CaminhoFully, Last),
                                             resolve_iter(Rua,Last,CaminhoFinal), takeHead(CaminhoFinal,Tail),
