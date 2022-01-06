@@ -74,7 +74,7 @@ ecologico(carro,1).
 estafeta(antonio/0).
 estafeta(joao/0).
 %---ecomenda(nome/id,rua,peso,preco,tempo max de entrega em h (0 e imediato)).
-ecomenda(televisao/0,antonioR,10,780,24).
+ecomenda(televisao/0,armandoR,15,780,0).
 ecomenda(televisao/1,joaoR,10,500,12).
 ecomenda(televisao/2,mariaR,10,460,16).
 ecomenda(pc/0,antonioR,2,780,24).
@@ -252,19 +252,23 @@ ruasAdj(diogoR,armandoR,1.4).
 ruasAdj(afonsoR,diogoR,1.9).
 %---ecomenda(nome/id,rua,peso,preco,tempo max de entrega em h (0 e imediato)).
 
+                                                               
 recomendacao(Entrega/ID,Algoritmo,Transporte/Distancia/Caminho) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
-                                                                           findall(Veiculo/VelocidadePenalizada,
-                                                                                    (transporte(Veiculo,Max,_),
-                                                                                    Peso < Max,
-                                                                                    velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada),
-                                                                                    VelocidadePenalizada > 0),LV),
-                                                                            caminho(Algoritmo,Destino,Distancia,Caminho),                                                       
-                                                                            selecionaMelhorTransporte(LV, Distancia, Tempo, Transporte).
-                                                                 
-
+                                                                caminho(Algoritmo,Destino,Distancia,Caminho),
+                                                                findall(Veiculo/VelocidadePenalizada,
+                                                                    (transporte(Veiculo,Max,_),
+                                                                    Peso =< Max,
+                                                                    velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada)),
+                                                                    LV),
+                                                                veiculosPossiveis(LV,Distancia,Tempo,ListaPossiveis),
+                                                                length(ListaPossiveis,LengthLista),
+                                                                (LengthLista =\= 0 ->
+                                                                veiculoMaisEcologico(ListaPossiveis,Transporte,_);
+                                                                transporteMaisRapido(LV,_,Transporte)).
+                                                             
 
 caminho(df,Destino,Distancia,Caminho) :- sede(Rua),resolve_pp_c(Destino,Rua,Caminho,Distancia).
-caminho(bf,Destino,Distancia,Caminho) :- sede(Rua),bfs(Destino,Rua,Caminho),distancia(Caminho,Distancia).
+caminho(bf,Destino,Distancia,Caminho) :- sede(Rua),bfs(Rua,Destino,Caminho),distancia(Caminho,Distancia).
 caminho(dfi,Destino,Distancia,Caminho) :- sede(Rua),resolve_iter(Destino,Rua,Caminho),distancia(Caminho,Distancia).
 caminho(aestrela,Destino,Distancia,Caminho) :- resolve_aestrela(Destino,Caminho/Distancia).
 caminho(gulosa,Destino,Distancia,Caminho) :- resolve_gulosa(Destino,Caminho/Distancia).
@@ -383,8 +387,30 @@ distancia([_],0).
 
 velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada):- transporte(Veiculo,_,Velocidade),
                                                 penalidade(Veiculo,Penalidade),Z is Penalidade*Peso,
-                                                Z < Velocidade -> VelocidadePenalizada is Velocidade-Z ; VelocidadePenalizada is 0.
+                                                Z =< Velocidade -> VelocidadePenalizada is Velocidade-Z ; VelocidadePenalizada is 0.
 
+transporteMaisRapido([Transporte/Velocidade] ,Velocidade,Transporte).
+transporteMaisRapido([TransporteAtual/VelocidadeAtual|Next],VelocidadeMaxAtual,TransporteMaxAtual) :- transporteMaisRapido(Next,VelocidadeMax,TransporteMax),
+                                                                                  (VelocidadeAtual > VelocidadeMax ->
+                                                                                  TransporteMaxAtual = TransporteAtual,
+                                                                                  VelocidadeMaxAtual is VelocidadeAtual ;                                                                            
+                                                                                   VelocidadeMaxAtual is VelocidadeMax,
+                                                                                   TransporteMaxAtual = TransporteMax),!.
+
+
+veiculosPossiveis([Veiculo/Velocidade],Distancia,Tempo,LV):- TempoV is Distancia/Velocidade,TempoV < Tempo -> LV = [Veiculo] ; LV = [],!.
+veiculosPossiveis([Veiculo/Velocidade|Prox],Distancia,Tempo,LV):- veiculosPossiveis(Prox,Distancia,Tempo,ListVeiculoRecebida),
+                                                                TempoV is Distancia/Velocidade,
+                                                                TempoV < Tempo -> LV = [Veiculo|ListVeiculoRecebida] ; LV = ListVeiculoRecebida.
+
+veiculoMaisEcologico([Veiculo], Veiculo,Ecologia):- ecologico(Veiculo,Ecologia).
+veiculoMaisEcologico([Veiculo|Prox], VeiculoE,EcologiaE) :- veiculoMaisEcologico(Prox,VeiculoAux,EcologiaAux),
+                                                                            ecologico(Veiculo,Ecologia),
+                                                                            (Ecologia > EcologiaAux -> 
+                                                                            EcologiaE = Ecologia,
+                                                                            VeiculoE = Veiculo;
+                                                                            EcologiaE = EcologiaAux,
+                                                                            VeiculoE = VeiculoAux),!.
 
 selecionaMelhorTransporte([Veiculo/Velocidade|Prox], Distancia, Tempo, Veiculo) :- selecionaMelhorTransporte(Prox, Distancia, Transporte),
                                                                                    ecologico(Veiculo,VeiculoGrau), ecologico(Transporte,TransporteGrau),
