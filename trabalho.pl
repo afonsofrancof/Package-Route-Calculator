@@ -415,6 +415,11 @@ maiorPeso([],Zona,0) :- sede(Zona).
 maiorPeso([Zona/PesoTotal|Resto],Zona,PesoTotal) :- maiorPeso(Resto,_,PesoFinal), PesoTotal > PesoFinal , !.
 maiorPeso([_ | Resto],Zona,PesoTotal) :- maiorPeso(Resto,Zona,PesoTotal). 
 
+
+ruaLista([],[]).
+ruaLista([Encomenda/ID|T],[Rua|RuaLista]) :- ruaLista(T,RuaLista), ecomenda(Encomenda/ID,Rua,_,_,_), not(member(Rua,RuaLista)), !.
+ruaLista([_|T],RuaLista) :- ruaLista(T,RuaLista).
+
 %%
 
 recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
@@ -429,8 +434,8 @@ recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :-
                                                                                 transporteMaisRapido(LV,_,Transporte)),!.
 
 recomendacaoVariasAlgoritmo(Ecomendas,Algoritmo,Transporte/Distancia/Caminho) :- predsort(cmpEncomendaTempo,Ecomendas,Sorted),
-                                                                                %RuaLista
-                                                                                fullyCaminho(Algoritmo,Sorted,Distancia,Caminho),
+                                                                                ruaLista(Sorted,Destinos),
+                                                                                fullyCaminho(Algoritmo,Destinos,Distancia,Caminho),
                                                                                 %Caminho regresso
                                                                                 findall(P,(ecomenda(E,_,P,_,_),member(E,Ecomendas)),LP), sumLista(LP,Peso),
                                                                                 findall(Veiculo/VelocidadePenalizada, 
