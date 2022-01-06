@@ -428,6 +428,9 @@ takeHead([],[]).
 takeHead([_|T],T).
 
 %%
+
+recomendacao(E,Transporte/Distancia/Caminho) :- recomendacaoAlgoritmo(E,aestrela,Transporte/Distancia/Caminho).
+
 recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :- statistics(runtime,[Start|_]),
                                                                                 ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
                                                                                 caminho(Algoritmo,Destino,Distancia,Caminho),
@@ -444,17 +447,17 @@ recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :-
                                                                                 Runtime is Time * 1000,
                                                                                 nl,write('Time: '),write(Runtime), write(' ms'),!.
 
-recomendacaoVariasAlgoritmo(Ecomendas,Transporte/Distancia/Caminho) :- predsort(cmpEncomendaTempo,Ecomendas,Sorted),
-                                                                        ruaLista(Sorted,Destinos),
-                                                                        fullyCaminho(Destinos,Distancia,Caminho),
-                                                                        findall(P,(ecomenda(E,_,P,_,_),member(E,Ecomendas)),LP), sumLista(LP,Peso),
-                                                                        findall(Veiculo/VelocidadePenalizada, 
-                                                                        (transporte(Veiculo,Max,_), Peso =< Max, velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada)), LV),
-                                                                        toPrimeiro(Sorted,DistanciaPrimeiro,TempoPrimeiro),
-                                                                        veiculosPossiveis(LV,DistanciaPrimeiro,TempoPrimeiro,ListaPossiveis),
-                                                                        length(ListaPossiveis,LengthLista),
-                                                                        (LengthLista =\= 0 -> veiculoMaisEcologico(ListaPossiveis,Transporte,_);
-                                                                        transporteMaisRapido(LV,_,Transporte)),!.                                                             
+recomendacaoVarias(Ecomendas,Transporte/Distancia/Caminho) :- predsort(cmpEncomendaTempo,Ecomendas,Sorted),
+                                                            ruaLista(Sorted,Destinos),
+                                                            fullyCaminho(Destinos,Distancia,Caminho),
+                                                            findall(P,(ecomenda(E,_,P,_,_),member(E,Ecomendas)),LP), sumLista(LP,Peso),
+                                                            findall(Veiculo/VelocidadePenalizada, 
+                                                            (transporte(Veiculo,Max,_), Peso =< Max, velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada)), LV),
+                                                            toPrimeiro(Sorted,DistanciaPrimeiro,TempoPrimeiro),
+                                                            veiculosPossiveis(LV,DistanciaPrimeiro,TempoPrimeiro,ListaPossiveis),
+                                                            length(ListaPossiveis,LengthLista),
+                                                            (LengthLista =\= 0 -> veiculoMaisEcologico(ListaPossiveis,Transporte,_);
+                                                            transporteMaisRapido(LV,_,Transporte)),!.                                                             
 
 toPrimeiro([H|_],Distancia,Tempo) :- ecomenda(H,Destino,_,_,Tempo),sede(Rua),resolve_iter(Destino,Rua,Caminho),distancia(Caminho,Distancia).
 
