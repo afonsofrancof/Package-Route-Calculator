@@ -415,6 +415,11 @@ maiorPeso([],Zona,0) :- sede(Zona).
 maiorPeso([Zona/PesoTotal|Resto],Zona,PesoTotal) :- maiorPeso(Resto,_,PesoFinal), PesoTotal > PesoFinal , !.
 maiorPeso([_ | Resto],Zona,PesoTotal) :- maiorPeso(Resto,Zona,PesoTotal). 
 
+removeRepetidos([H|T], Caminho,[H|SR]) :- removeRepetidos(T, Caminho, SR),
+                                                not(member(H,Caminho)),!.
+removeRepetidos([_|T],Caminho,SR):- removeRepetidos(T,Caminho,SR).
+removeRepetidos([],_,[]).
+
 %%
 recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :- statistics(runtime,[Start|_]),
                                                                                 ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
