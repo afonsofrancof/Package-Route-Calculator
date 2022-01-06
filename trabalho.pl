@@ -254,7 +254,7 @@ ruasAdj(afonsoR,diogoR,1.9).
 
 recomendacao(Entrega/ID,Algoritmo,Transporte/Distancia/Caminho) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
                                                                            findall(Veiculo/VelocidadePenalizada,
-                                                                                    (transporte(Veiculo,Max,Velocidade),
+                                                                                    (transporte(Veiculo,Max,_),
                                                                                     Peso < Max,
                                                                                     velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada),
                                                                                     VelocidadePenalizada > 0),LV),
@@ -315,7 +315,7 @@ agulosa(Caminhos, SolucaoCaminho) :-
 
 
 obtem_melhor_g([Caminho], Caminho) :- !.
-obtem_melhor_g([Caminho1/Custo1/Est1,_/Custo2/Est2|Caminhos], MelhorCaminho) :-
+obtem_melhor_g([Caminho1/Custo1/Est1,_/_/Est2|Caminhos], MelhorCaminho) :-
 	Est1 =< Est2, !,
 	obtem_melhor_g([Caminho1/Custo1/Est1|Caminhos], MelhorCaminho).	
 obtem_melhor_g([_|Caminhos], MelhorCaminho) :- 
@@ -346,7 +346,7 @@ bfs(Orig, Dest, Cam):- bfs2(Dest,[[Orig]],Cam).
 bfs2(Dest,[[Dest|T]|_],Cam):- reverse([Dest|T],Cam). 
 bfs2(Dest,[LA|Outros],Cam):- 
                         LA=[Act|_],
-                        findall([X|LA],(Dest\==Act,adjacente(Act,X,_),\+member(X/C,LA)),Novos),
+                        findall([X|LA],(Dest\==Act,adjacente(Act,X,_),\+member(X/_,LA)),Novos),
                         append(Outros,Novos,Todos),
                         bfs2(Dest,Todos,Cam).
 
@@ -359,7 +359,7 @@ iter_depth_call(Destino, Nodo, Caminho, Depth) :-
 
 iter_depth(Destino, Destino, _, [], 1).
 iter_depth(Destino, Nodo, Historico, [ProxNodo|Caminho], Depth) :-
-                adjacente(Nodo, ProxNodo, C1),
+                adjacente(Nodo, ProxNodo, _),
                 not(member(ProxNodo, Historico)),
                 Z is Depth - 1,
                 Z > 0,
@@ -379,7 +379,7 @@ distancia([Rua|Prox],Total) :-
                         distancia(Prox, DistProx), 
                         adjacente(Rua, Elem, Distancia),
                         Total is Distancia + DistProx.
-distancia([R],0).
+distancia([_],0).
 
 velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada):- transporte(Veiculo,_,Velocidade),
                                                 penalidade(Veiculo,Penalidade),Z is Penalidade*Peso,
@@ -389,23 +389,23 @@ velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada):- transporte(Veiculo,_,V
 selecionaMelhorTransporte([Veiculo/Velocidade|Prox], Distancia, Tempo, Veiculo) :- selecionaMelhorTransporte(Prox, Distancia, Transporte),
                                                                                    ecologico(Veiculo,VeiculoGrau), ecologico(Transporte,TransporteGrau),
                                                                                    VeiculoGrau > TransporteGrau , TempoTotal is Distancia / Velocidade, TempoTotal < Tempo, !.
-selecionaMelhorTransporte([Veiculo/Velocidade|Prox], Distancia, Transporte) :- selecionaMelhorTransporte(Prox,Distancia,Transporte).
-selecionaMelhorTransporte([Veiculo/Velocidade], Distancia, Veiculo).
+selecionaMelhorTransporte([_/_|Prox], Distancia, Transporte) :- selecionaMelhorTransporte(Prox,Distancia,Transporte).
+selecionaMelhorTransporte([Veiculo/_], _, Veiculo).
 
-retiraDistancias([Rua/Caminho|Prox], [Rua|Resultado]) :- retiraDistancias(Prox,Resultado).
+retiraDistancias([Rua/_|Prox], [Rua|Resultado]) :- retiraDistancias(Prox,Resultado).
 retiraDistancias([],[]).
 
 %% 
 
 fregMaiorPesoEntregas(Zona) :- findall(Freg/PesoTotal,(rua(_,Freg),
                                                      findall(Peso,(ecomenda(Nome/ID,Rua,Peso,_,_),
-                                                                  entrega(_,Nome/Id,_,_,_),
+                                                                  entrega(_,Nome/ID,_,_,_),
                                                                   rua(Rua,Freg)) ,LP),
                                                      sumLista(LP,PesoTotal)),LT),
-                               maiorPeso(LT,Zona,PesoFinal).
+                               maiorPeso(LT,Zona,_).
 
 maiorPeso([],Zona,0) :- sede(Zona).
-maiorPeso([Zona/PesoTotal|Resto],Zona,PesoTotal) :- maiorPeso(Resto,ZonaFinal,PesoFinal), PesoTotal > PesoFinal , !.
+maiorPeso([Zona/PesoTotal|Resto],Zona,PesoTotal) :- maiorPeso(Resto,_,PesoFinal), PesoTotal > PesoFinal , !.
 maiorPeso([_ | Resto],Zona,PesoTotal) :- maiorPeso(Resto,Zona,PesoTotal). 
 
 ruaMaiorPesoEntregas(Zona) :- findall(Rua/PesoTotal,(rua(Rua,_),
@@ -413,4 +413,4 @@ ruaMaiorPesoEntregas(Zona) :- findall(Rua/PesoTotal,(rua(Rua,_),
                                                                    ecomenda(D/I,Rua,Peso,_,_))
                                                                    ,LP),
                                                      sumLista(LP,PesoTotal)),LT),
-                               maiorPeso(LT,Zona,PesoFinal).
+                               maiorPeso(LT,Zona,_).
