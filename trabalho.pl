@@ -313,7 +313,7 @@ profundidadeprimeiro(Destino, Nodo, Historico, [ProxNodo|Caminho], C) :-
                 profundidadeprimeiro(Destino, ProxNodo, [ProxNodo|Historico], Caminho, C2), 
                 C is C1 + C2.
 
-% breath first
+% breadth first
 bfs(Orig, Dest, Cam):- bfs2(Dest,[[Orig]],Cam).
 bfs2(Dest,[[Dest|T]|_],Cam):- reverse([Dest|T],Cam). 
 bfs2(Dest,[LA|Outros],Cam):- 
@@ -416,8 +416,8 @@ maiorPeso([Zona/PesoTotal|Resto],Zona,PesoTotal) :- maiorPeso(Resto,_,PesoFinal)
 maiorPeso([_ | Resto],Zona,PesoTotal) :- maiorPeso(Resto,Zona,PesoTotal). 
 
 %%
-
-recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
+recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :- statistics(runtime,[Start|_]),
+                                                                                ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
                                                                                 caminho(Algoritmo,Destino,Distancia,Caminho),
                                                                                 reverse(Caminho,[_|Tail]), append(Caminho,Tail,CaminhoTotal),
                                                                                 findall(Veiculo/VelocidadePenalizada, 
@@ -426,7 +426,11 @@ recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :-
                                                                                 length(ListaPossiveis,LengthLista),
                                                                                 (LengthLista =\= 0 ->
                                                                                 veiculoMaisEcologico(ListaPossiveis,Transporte,_);
-                                                                                transporteMaisRapido(LV,_,Transporte)),!.
+                                                                                transporteMaisRapido(LV,_,Transporte)),
+                                                                                statistics(runtime,[Stop|_]),
+                                                                                Time is Stop - Start,
+                                                                                Runtime is Time * 1000,
+                                                                                nl,write('Time: '),write(Runtime), write(' ms'),!.
 
 recomendacaoVariasAlgoritmo(Ecomendas,Algoritmo,Transporte/Distancia/Caminho) :- predsort(cmpEncomendaTempo,Ecomendas,Sorted),
                                                         
