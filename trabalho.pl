@@ -433,9 +433,9 @@ recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :-
                                                                                 nl,write('Time: '),write(Runtime), write(' ms'),!.
 
 recomendacaoVariasAlgoritmo(Ecomendas,Algoritmo,Transporte/Distancia/Caminho) :- predsort(cmpEncomendaTempo,Ecomendas,Sorted),
-                                                        
+                                                                                %RuaLista
                                                                                 fullyCaminho(Algoritmo,Sorted,Distancia,Caminho),
-
+                                                                                %Caminho regresso
                                                                                 findall(P,(ecomenda(E,_,P,_,_),member(E,Ecomendas)),LP), sumLista(LP,Peso),
                                                                                 findall(Veiculo/VelocidadePenalizada, 
                                                                                 (transporte(Veiculo,Max,_), Peso =< Max, velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada)), LV),
@@ -444,7 +444,11 @@ recomendacaoVariasAlgoritmo(Ecomendas,Algoritmo,Transporte/Distancia/Caminho) :-
                                                                                 (LengthLista =\= 0 -> veiculoMaisEcologico(ListaPossiveis,Transporte,_);
                                                                                 transporteMaisRapido(LV,_,Transporte)).                                                             
 
-fullyCaminho(Algoritmo,Sorted,Distancia,Caminho). 
+fullyCaminho(Algoritmo,[],0,[]).
+fullyCaminho(Algoritmo,Destinos,Distancia,Caminho) :- [H|_] = Destinos, caminho(Algoritmo,H,DistanciaPrimerio,CaminhoPrimeiro),
+                                                      %
+                                                      fullyCaminho(Algoritmo,NewDestinos,DistanciaSegundo,CaminhoSegundo), 
+                                                      append(CaminhoPrimeiro,CaminhoSegundo,Caminho), Distancia is DistanciaPrimerio + DistanciaSegundo.                                                        
 
 caminho(df,Destino,Distancia,Caminho) :- sede(Rua),resolve_pp_c(Destino,Rua,Caminho,Distancia).
 caminho(bf,Destino,Distancia,Caminho) :- sede(Rua),bfs(Rua,Destino,Caminho),distancia(Caminho,Distancia).
