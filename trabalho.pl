@@ -417,9 +417,9 @@ maiorPeso([_ | Resto],Zona,PesoTotal) :- maiorPeso(Resto,Zona,PesoTotal).
 
 %%
 
-recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/Caminho) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
+recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
                                                                                 caminho(Algoritmo,Destino,Distancia,Caminho),
-                                                                                %[_|Tail] is Caminho, append(Caminho,Tail,CaminhoTotal),
+                                                                                reverse(Caminho,[_|Tail]), append(Caminho,Tail,CaminhoTotal),
                                                                                 findall(Veiculo/VelocidadePenalizada, 
                                                                                 (transporte(Veiculo,Max,_), Peso =< Max, velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada)), LV),
                                                                                 veiculosPossiveis(LV,Distancia,Tempo,ListaPossiveis),
@@ -430,9 +430,9 @@ recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/Caminho) :- ecom
 
 recomendacaoVariasAlgoritmo(Ecomendas,Algoritmo,Transporte/Distancia/Caminho) :- predsort(cmpEncomendaTempo,Ecomendas,Sorted),
                                                         
-                                                                                fullyCaminho(Algoritmo,Sorted,Caminho),
-                                                                        
-                                                                                findall(Peso,(ecomenda(E,_,Peso,_,_),member(E,Ecomendas)),LP), sumLista(LP,Max),
+                                                                                fullyCaminho(Algoritmo,Sorted,Distancia,Caminho),
+
+                                                                                findall(P,(ecomenda(E,_,P,_,_),member(E,Ecomendas)),LP), sumLista(LP,Peso),
                                                                                 findall(Veiculo/VelocidadePenalizada, 
                                                                                 (transporte(Veiculo,Max,_), Peso =< Max, velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada)), LV),
                                                                                 veiculosPossiveis(LV,Distancia,Tempo,ListaPossiveis),
@@ -440,7 +440,7 @@ recomendacaoVariasAlgoritmo(Ecomendas,Algoritmo,Transporte/Distancia/Caminho) :-
                                                                                 (LengthLista =\= 0 -> veiculoMaisEcologico(ListaPossiveis,Transporte,_);
                                                                                 transporteMaisRapido(LV,_,Transporte)).                                                             
 
-fullyCaminho(Algoritmo,Sorted,Caminho). 
+fullyCaminho(Algoritmo,Sorted,Distancia,Caminho). 
 
 caminho(df,Destino,Distancia,Caminho) :- sede(Rua),resolve_pp_c(Destino,Rua,Caminho,Distancia).
 caminho(bf,Destino,Distancia,Caminho) :- sede(Rua),bfs(Rua,Destino,Caminho),distancia(Caminho,Distancia).
