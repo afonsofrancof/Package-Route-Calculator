@@ -1,6 +1,5 @@
 :- op( 900,xfy,'::' ).
 %%ADICIONAR DYNAMIC A TODOS QUE PODEREM SER MODIFICADOS
-
 :- dynamic ecomenda/5.
 :- dynamic entrega/5.
 :- dynamic review/4.
@@ -88,6 +87,7 @@ entrega(pedro/0,pc/0, joao/0, bicicleta, 12/04/2002).
 %---review(cliente/id,ecomenda/id,classificação,comentario).
 review(pedro/0,televisao/0,4,"bueno").
 review(manuel/0,televisao/1,1,"meh").
+
 %---precoExtra(peso,meio de transporte, tempo de transporte,total)
 precoExtra(Peso,Transporte,Tempo,Total) :- precoPeso(Peso,PrecoPeso), precoTransporte(Transporte,PrecoTransporte), precoTempo(Tempo,PrecoTempo),
                                            Total is PrecoPeso + PrecoTempo + PrecoTransporte.
@@ -105,10 +105,45 @@ precoTempo(_,5)  :- !.
 precoTransporte(bicicleta,5).
 precoTransporte(moto,15).
 precoTransporte(carro,20).
+
+%---Mapa
+%----sede(localizacão da sede).
+sede(joaoR).
+%---ruas de um ciadade(nome da rua,fregesia).
+rua(antonioR,sVictor).
+rua(joaoR,sVictor).
+rua(mariaR,sVitor).
+rua(afonsoR,sVicente).
+rua(tiagoR,sVicente).
+rua(diogoR,gualtar).
+rua(armandoR,gualtar).
+rua(semilhaR,gualtar).
+%---distancia em linha reta a sede
+estimativa(joaoR,0).
+estimativa(antonioR,1.4).
+estimativa(afonsoR,1).
+estimativa(mariaR,2.5).
+estimativa(tiagoR,1.6).
+estimativa(diogoR,2.3).
+estimativa(armandoR,3.7).
+estimativa(semilhaR,2.1).
+%---ruasAdj(rua,rua) ,depois para ver as freg -> rua(Nome,freg)
+ruasAdj(joaoR,antonioR,1.4).
+ruasAdj(joaoR,afonsoR,1).
+ruasAdj(antonioR,mariaR,2).
+ruasAdj(antonioR,afonsoR,1.2).
+ruasAdj(mariaR,tiagoR,1.7).
+ruasAdj(tiagoR,afonsoR,0.5).
+ruasAdj(tiagoR,diogoR,2.9).
+ruasAdj(tiagoR,semilhaR,1.5).
+ruasAdj(semilhaR,armandoR,1.4).
+ruasAdj(diogoR,armandoR,1.4).
+ruasAdj(afonsoR,diogoR,1.9).
+
 %---Exercicios
 
+%1
 first([H|_],H).
-
 
 estafetaEcologico(MelhorEstafeta/Id) :- findall(Estafeta/Id/Meio ,(entrega(_,_,Estafeta/Id,Transporte,_),ecologico(Transporte,Meio)),Est),
                                                         construirId0(Est,[],List),
@@ -194,85 +229,18 @@ pesoPorEstafetaDia(Estafeta,Total,Dia/Mes/Ano) :- findall(Peso,
                                                   ecomenda(Ecomenda,_,Peso,_,_)),
                                                   LE), sumLista(LE,Total).
 
-%---Func Aux
-entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- date_time_stamp(date(Ano,Mes,Dia),X),
-                                                    date_time_stamp(date(AnoI,MesI,DiaI),Y),
-                                                    date_time_stamp(date(AnoF,MesF,DiaF),Z),
-                                                    X<Z,
-                                                    X>Y.
-removerClientesRepetidos([],List,List).
-removerClientesRepetidos([Cliente|X],Empty,List):- member(Cliente,Empty) -> removerClientesRepetidos(X,Empty,List) ; removerClientesRepetidos(X,[Cliente|Empty],List).
+%
 
-maisRepetido([Tipo],Tipo,1).
-maisRepetido([X|Tipos],X,QuantosRepetidos) :- maisRepetido(Tipos,_,Q),
-                                              quantosRepetidos([X|Tipos],X,QuantosRepetidos),
-                                              Q < QuantosRepetidos,!.
-maisRepetido([_|Tipos],Tipo,Quantos) :- maisRepetido(Tipos,Tipo,Quantos).
+fregMaiorPesoEntregas(Zona) :- findall(Freg/PesoTotal,(rua(_,Freg),
+                                                     findall(Peso,(ecomenda(Nome/ID,Rua,Peso,_,_),entrega(_,Nome/ID,_,_,_),rua(Rua,Freg)) ,LP),
+                                                     sumLista(LP,PesoTotal)),LT), maiorPeso(LT,Zona,_).
 
-quantosRepetidos([],_,0).
-quantosRepetidos([Tipo|Tipos],Tipo,Quantos) :- !, quantosRepetidos(Tipos,Tipo,Quantos1), Quantos is Quantos1 + 1.
-quantosRepetidos([_|Tipos],Tipo,Quantos) :- quantosRepetidos(Tipos,Tipo,Quantos).
+ruaMaiorPesoEntregas(Zona) :- findall(Rua/PesoTotal,(rua(Rua,_),
+                                                     findall(Peso,(entrega(_,D/I,_,_,_),ecomenda(D/I,Rua,Peso,_,_)),LP),
+                                                     sumLista(LP,PesoTotal)),LT), maiorPeso(LT,Zona,_).
 
-sumLista([],0).
-sumLista([X|Y],K):- sumLista(Y,K1), K is X + K1.
 
-%---V3 dos mapas
-%----sede(localizacão da sede).
-sede(joaoR).
-%---ruas de um ciadade(nome da rua,fregesia).
-rua(antonioR,sVictor).
-rua(joaoR,sVictor).
-rua(mariaR,sVitor).
-rua(afonsoR,sVicente).
-rua(tiagoR,sVicente).
-rua(diogoR,gualtar).
-rua(armandoR,gualtar).
-rua(semilhaR,gualtar).
-
-estimativa(joaoR,0).
-estimativa(antonioR,1.4).
-estimativa(afonsoR,1).
-estimativa(mariaR,2.5).
-estimativa(tiagoR,1.6).
-estimativa(diogoR,2.3).
-estimativa(armandoR,3.7).
-estimativa(semilhaR,2.1).
-
-%---ruasAdj(rua,rua) ,depois para ver as freg -> rua(Nome,freg)
-ruasAdj(joaoR,antonioR,1.4).
-ruasAdj(joaoR,afonsoR,1).
-ruasAdj(antonioR,mariaR,2).
-ruasAdj(antonioR,afonsoR,1.2).
-ruasAdj(mariaR,tiagoR,1.7).
-ruasAdj(tiagoR,afonsoR,0.5).
-ruasAdj(tiagoR,diogoR,2.9).
-ruasAdj(tiagoR,semilhaR,1.5).
-ruasAdj(semilhaR,armandoR,1.4).
-ruasAdj(diogoR,armandoR,1.4).
-ruasAdj(afonsoR,diogoR,1.9).
-%---ecomenda(nome/id,rua,peso,preco,tempo max de entrega em h (0 e imediato)).
-
-                                                               
-recomendacao(Entrega/ID,Algoritmo,Transporte/Distancia/Caminho) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
-                                                                caminho(Algoritmo,Destino,Distancia,Caminho),
-                                                                findall(Veiculo/VelocidadePenalizada,
-                                                                    (transporte(Veiculo,Max,_),
-                                                                    Peso =< Max,
-                                                                    velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada)),
-                                                                    LV),
-                                                                veiculosPossiveis(LV,Distancia,Tempo,ListaPossiveis),
-                                                                length(ListaPossiveis,LengthLista),
-                                                                (LengthLista =\= 0 ->
-                                                                veiculoMaisEcologico(ListaPossiveis,Transporte,_);
-                                                                transporteMaisRapido(LV,_,Transporte)).
-                                                             
-
-caminho(df,Destino,Distancia,Caminho) :- sede(Rua),resolve_pp_c(Destino,Rua,Caminho,Distancia).
-caminho(bf,Destino,Distancia,Caminho) :- sede(Rua),bfs(Rua,Destino,Caminho),distancia(Caminho,Distancia).
-caminho(dfi,Destino,Distancia,Caminho) :- sede(Rua),resolve_iter(Destino,Rua,Caminho),distancia(Caminho,Distancia).
-caminho(aestrela,Destino,Distancia,Caminho) :- resolve_aestrela(Destino,Caminho/Distancia).
-caminho(gulosa,Destino,Distancia,Caminho) :- resolve_gulosa(Destino,Caminho/Distancia).
-
+%%Algoritmos de procura
 %aestrela
 resolve_aestrela(Nodo, Caminho/Custo) :-
 	estimativa(Nodo, Estima),
@@ -369,7 +337,29 @@ iter_depth(Destino, Nodo, Historico, [ProxNodo|Caminho], Depth) :-
                 Z > 0,
                 iter_depth(Destino, ProxNodo, [ProxNodo|Historico], Caminho, Z).
 
+
 %% Auxiliares
+entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- date_time_stamp(date(Ano,Mes,Dia),X),
+                                                    date_time_stamp(date(AnoI,MesI,DiaI),Y),
+                                                    date_time_stamp(date(AnoF,MesF,DiaF),Z),
+                                                    X<Z,
+                                                    X>Y.
+removerClientesRepetidos([],List,List).
+removerClientesRepetidos([Cliente|X],Empty,List):- member(Cliente,Empty) -> removerClientesRepetidos(X,Empty,List) ; removerClientesRepetidos(X,[Cliente|Empty],List).
+
+maisRepetido([Tipo],Tipo,1).
+maisRepetido([X|Tipos],X,QuantosRepetidos) :- maisRepetido(Tipos,_,Q),
+                                              quantosRepetidos([X|Tipos],X,QuantosRepetidos),
+                                              Q < QuantosRepetidos,!.
+maisRepetido([_|Tipos],Tipo,Quantos) :- maisRepetido(Tipos,Tipo,Quantos).
+
+quantosRepetidos([],_,0).
+quantosRepetidos([Tipo|Tipos],Tipo,Quantos) :- !, quantosRepetidos(Tipos,Tipo,Quantos1), Quantos is Quantos1 + 1.
+quantosRepetidos([_|Tipos],Tipo,Quantos) :- quantosRepetidos(Tipos,Tipo,Quantos).
+
+sumLista([],0).
+sumLista([X|Y],K):- sumLista(Y,K1), K is X + K1.
+
 seleciona(E, [E|Xs], Xs).
 seleciona(E, [X|Xs], [X|Ys]) :- seleciona(E, Xs, Ys).
 
@@ -421,22 +411,42 @@ selecionaMelhorTransporte([Veiculo/_], _, Veiculo).
 retiraDistancias([Rua/_|Prox], [Rua|Resultado]) :- retiraDistancias(Prox,Resultado).
 retiraDistancias([],[]).
 
-%% 
-
-fregMaiorPesoEntregas(Zona) :- findall(Freg/PesoTotal,(rua(_,Freg),
-                                                     findall(Peso,(ecomenda(Nome/ID,Rua,Peso,_,_),
-                                                                  entrega(_,Nome/ID,_,_,_),
-                                                                  rua(Rua,Freg)) ,LP),
-                                                     sumLista(LP,PesoTotal)),LT),
-                               maiorPeso(LT,Zona,_).
-
 maiorPeso([],Zona,0) :- sede(Zona).
 maiorPeso([Zona/PesoTotal|Resto],Zona,PesoTotal) :- maiorPeso(Resto,_,PesoFinal), PesoTotal > PesoFinal , !.
 maiorPeso([_ | Resto],Zona,PesoTotal) :- maiorPeso(Resto,Zona,PesoTotal). 
 
-ruaMaiorPesoEntregas(Zona) :- findall(Rua/PesoTotal,(rua(Rua,_),
-                                                     findall(Peso,(entrega(_,D/I,_,_,_),
-                                                                   ecomenda(D/I,Rua,Peso,_,_))
-                                                                   ,LP),
-                                                     sumLista(LP,PesoTotal)),LT),
-                               maiorPeso(LT,Zona,_).
+%%
+
+recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/Caminho) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
+                                                                                caminho(Algoritmo,Destino,Distancia,Caminho),
+                                                                                %[_|Tail] is Caminho, append(Caminho,Tail,CaminhoTotal),
+                                                                                findall(Veiculo/VelocidadePenalizada, 
+                                                                                (transporte(Veiculo,Max,_), Peso =< Max, velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada)), LV),
+                                                                                veiculosPossiveis(LV,Distancia,Tempo,ListaPossiveis),
+                                                                                length(ListaPossiveis,LengthLista),
+                                                                                (LengthLista =\= 0 ->
+                                                                                veiculoMaisEcologico(ListaPossiveis,Transporte,_),!;
+                                                                                transporteMaisRapido(LV,_,Transporte),!).
+
+recomendacaoVariasAlgoritmo(Ecomendas,Algoritmo,Transporte/Distancia/Caminho) :- predsort(cmpEncomendaTempo,Ecomendas,Sorted),
+                                                        
+                                                                                fullyCaminho(Algoritmo,Sorted,Caminho),
+                                                                        
+                                                                                findall(Peso,(ecomenda(E,_,Peso,_,_),member(E,Ecomendas)),LP), sumLista(LP,Max),
+                                                                                findall(Veiculo/VelocidadePenalizada, 
+                                                                                (transporte(Veiculo,Max,_), Peso =< Max, velocidadeTransporte(Veiculo,Peso,VelocidadePenalizada)), LV),
+                                                                                veiculosPossiveis(LV,Distancia,Tempo,ListaPossiveis),
+                                                                                length(ListaPossiveis,LengthLista),
+                                                                                (LengthLista =\= 0 -> veiculoMaisEcologico(ListaPossiveis,Transporte,_);
+                                                                                transporteMaisRapido(LV,_,Transporte)).                                                             
+
+fullyCaminho(Algoritmo,Sorted,Caminho). 
+
+caminho(df,Destino,Distancia,Caminho) :- sede(Rua),resolve_pp_c(Destino,Rua,Caminho,Distancia).
+caminho(bf,Destino,Distancia,Caminho) :- sede(Rua),bfs(Rua,Destino,Caminho),distancia(Caminho,Distancia).
+caminho(dfi,Destino,Distancia,Caminho) :- sede(Rua),resolve_iter(Destino,Rua,Caminho),distancia(Caminho,Distancia).
+caminho(aestrela,Destino,Distancia,Caminho) :- resolve_aestrela(Destino,Caminho/Distancia).
+caminho(gulosa,Destino,Distancia,Caminho) :- resolve_gulosa(Destino,Caminho/Distancia).
+
+cmpEncomendaTempo(<,Ecomenda,Ecomenda1) :- ecomenda(Ecomenda,_,_,_,Tempo), ecomenda(Ecomenda1,_,_,_,Tempo1), Tempo < Tempo1.
+cmpEncomendaTempo(>,Ecomenda,Ecomenda1) :- ecomenda(Ecomenda,_,_,_,Tempo), ecomenda(Ecomenda1,_,_,_,Tempo1), Tempo >= Tempo1.
