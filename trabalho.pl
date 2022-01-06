@@ -431,8 +431,7 @@ takeHead([_|T],T).
 
 recomendacao(E,Transporte/Distancia/Caminho) :- recomendacaoAlgoritmo(E,aestrela,Transporte/Distancia/Caminho).
 
-recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :- statistics(runtime,[Start|_]),
-                                                                                ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
+recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :- ecomenda(Entrega/ID,Destino,Peso,_,Tempo),
                                                                                 caminho(Algoritmo,Destino,Distancia,Caminho),
                                                                                 reverse(Caminho,[_|Tail]), append(Caminho,Tail,CaminhoTotal),
                                                                                 findall(Veiculo/VelocidadePenalizada, 
@@ -441,11 +440,7 @@ recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/CaminhoTotal) :-
                                                                                 length(ListaPossiveis,LengthLista),
                                                                                 (LengthLista =\= 0 ->
                                                                                 veiculoMaisEcologico(ListaPossiveis,Transporte,_);
-                                                                                transporteMaisRapido(LV,_,Transporte)),
-                                                                                statistics(runtime,[Stop|_]),
-                                                                                Time is Stop - Start,
-                                                                                Runtime is Time * 1000,
-                                                                                nl,write('Time: '),write(Runtime), write(' ms'),!.
+                                                                                transporteMaisRapido(LV,_,Transporte)),!.
 
 recomendacaoVarias(Ecomendas,Transporte/Distancia/Caminho) :- predsort(cmpEncomendaTempo,Ecomendas,Sorted),
                                                             ruaLista(Sorted,Destinos),
