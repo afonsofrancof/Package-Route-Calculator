@@ -425,8 +425,8 @@ recomendacaoAlgoritmo(Entrega/ID,Algoritmo,Transporte/Distancia/Caminho) :- ecom
                                                                                 veiculosPossiveis(LV,Distancia,Tempo,ListaPossiveis),
                                                                                 length(ListaPossiveis,LengthLista),
                                                                                 (LengthLista =\= 0 ->
-                                                                                veiculoMaisEcologico(ListaPossiveis,Transporte,_),!;
-                                                                                transporteMaisRapido(LV,_,Transporte),!).
+                                                                                veiculoMaisEcologico(ListaPossiveis,Transporte,_);
+                                                                                transporteMaisRapido(LV,_,Transporte)),!.
 
 recomendacaoVariasAlgoritmo(Ecomendas,Algoritmo,Transporte/Distancia/Caminho) :- predsort(cmpEncomendaTempo,Ecomendas,Sorted),
                                                         
