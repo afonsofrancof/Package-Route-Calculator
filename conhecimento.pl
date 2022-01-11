@@ -1,4 +1,4 @@
-- op( 900,xfy,'::' ).
+:- op( 900,xfy,'::' ).
 %%ADICIONAR DYNAMIC A TODOS QUE PODEREM SER MODIFICADOS
 :- dynamic ecomenda/5.
 :- dynamic entrega/5.
