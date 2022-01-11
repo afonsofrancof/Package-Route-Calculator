@@ -2,7 +2,7 @@
 :- ensure_loaded(procura).
 
 
-Auxiliares
+%Auxiliares
 entreData(Dia/Mes/Ano,DiaI/MesI/AnoI,DiaF/MesF/AnoF) :- date_time_stamp(date(Ano,Mes,Dia),X),
                                                     date_time_stamp(date(AnoI,MesI,DiaI),Y),
                                                     date_time_stamp(date(AnoF,MesF,DiaF),Z),
